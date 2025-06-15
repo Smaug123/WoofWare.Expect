@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="SimpleTest.fs" />
+        <Compile Include="TestSurface.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="ApiSurface" Version="4.1.20" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
+        <PackageReference Include="NUnit" Version="4.3.2"/>
+        <PackageReference Include="NUnit3TestAdapter" Version="5.0.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\WoofWare.Expect\WoofWare.Expect.fsproj" />
+    </ItemGroup>
+
+</Project>

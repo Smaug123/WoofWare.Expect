@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+      <TargetFramework>netstandard2.0</TargetFramework>
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+      <Authors>Patrick Stevens</Authors>
+      <Copyright>Copyright (c) Patrick Stevens 2025</Copyright>
+      <Description>Snapshot/expect testing framework for F#</Description>
+      <RepositoryType>git</RepositoryType>
+      <RepositoryUrl>https://github.com/Smaug123/WoofWare.Expect</RepositoryUrl>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <PackageReadmeFile>README.md</PackageReadmeFile>
+      <PackageIcon>logo.png</PackageIcon>
+      <PackageTags>fsharp;snapshot;expect;test;testing;jest</PackageTags>
+      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="Library.fs"/>
+        <None Include="..\README.md">
+          <Pack>True</Pack>
+          <PackagePath>\</PackagePath>
+        </None>
+        <None Include="..\logo.png">
+          <Pack>True</Pack>
+          <PackagePath>\</PackagePath>
+        </None>
+        <EmbeddedResource Include="SurfaceBaseline.txt"/>
+        <EmbeddedResource Include="version.json"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <!-- FSharp.SystemTextJson requires at least this version -->
+      <PackageReference Update="FSharp.Core" Version="4.7.0" />
+      <PackageReference Include="FSharp.SystemTextJson" Version="1.4.36" />
+      <!-- Needed for DeepEquals -->
+      <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    </ItemGroup>
+
+</Project>

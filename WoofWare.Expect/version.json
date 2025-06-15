@@ -1,0 +1,12 @@
+{
+  "version": "0.1",
+  "publicReleaseRefSpec": [
+    "^refs/heads/main$"
+  ],
+  "pathFilters": [
+    ":/WoofWare.Expect/",
+    ":/README.md",
+    ":/Directory.Build.props",
+    ":/LICENSE"
+  ]
+}

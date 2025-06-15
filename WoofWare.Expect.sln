@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WoofWare.Expect", "WoofWare.Expect\WoofWare.Expect.fsproj", "{01AADDA1-6A03-4C25-86DC-0FD1DB7A2187}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WoofWare.Expect.Test", "WoofWare.Expect.Test\WoofWare.Expect.Test.fsproj", "{980C24F9-41E8-4A8E-8F02-7D3B7C4A3FDD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{01AADDA1-6A03-4C25-86DC-0FD1DB7A2187}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01AADDA1-6A03-4C25-86DC-0FD1DB7A2187}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01AADDA1-6A03-4C25-86DC-0FD1DB7A2187}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01AADDA1-6A03-4C25-86DC-0FD1DB7A2187}.Release|Any CPU.Build.0 = Release|Any CPU
+		{980C24F9-41E8-4A8E-8F02-7D3B7C4A3FDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{980C24F9-41E8-4A8E-8F02-7D3B7C4A3FDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{980C24F9-41E8-4A8E-8F02-7D3B7C4A3FDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{980C24F9-41E8-4A8E-8F02-7D3B7C4A3FDD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
