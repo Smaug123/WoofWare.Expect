@@ -11,6 +11,12 @@ WoofWare.Expect.ExpectBuilder.Return [method]: unit -> 'T WoofWare.Expect.Expect
 WoofWare.Expect.ExpectBuilder.Run [method]: (unit -> 'T WoofWare.Expect.ExpectState) -> unit
 WoofWare.Expect.ExpectBuilder.Snapshot [method]: (unit WoofWare.Expect.ExpectState, string, string option, int option, string option) -> WoofWare.Expect.YouHaveSuppliedMultipleSnapshots WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.SnapshotJson [method]: (unit WoofWare.Expect.ExpectState, string, string option, int option, string option) -> WoofWare.Expect.YouHaveSuppliedMultipleSnapshots WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectException inherit System.Exception, implements System.Collections.IStructuralEquatable
+WoofWare.Expect.ExpectException..ctor [constructor]: string
+WoofWare.Expect.ExpectException..ctor [constructor]: unit
+WoofWare.Expect.ExpectException.Equals [method]: (System.Exception, System.Collections.IEqualityComparer) -> bool
+WoofWare.Expect.ExpectException.Equals [method]: System.Exception -> bool
+WoofWare.Expect.ExpectException.Message [property]: [read-only] string
 WoofWare.Expect.ExpectState`1 inherit obj, implements 'T WoofWare.Expect.ExpectState System.IEquatable, System.Collections.IStructuralEquatable, 'T WoofWare.Expect.ExpectState System.IComparable, System.IComparable, System.Collections.IStructuralComparable
 WoofWare.Expect.ExpectState`1.Equals [method]: ('T WoofWare.Expect.ExpectState, System.Collections.IEqualityComparer) -> bool
 WoofWare.Expect.YouHaveSuppliedMultipleSnapshots inherit obj, implements WoofWare.Expect.YouHaveSuppliedMultipleSnapshots System.IEquatable, System.Collections.IStructuralEquatable, WoofWare.Expect.YouHaveSuppliedMultipleSnapshots System.IComparable, System.IComparable, System.Collections.IStructuralComparable

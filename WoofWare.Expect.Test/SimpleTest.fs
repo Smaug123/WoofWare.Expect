@@ -27,7 +27,7 @@ actual was:
 
             return
                 Assert
-                    .Throws<Exception>(fun () ->
+                    .Throws<ExpectException>(fun () ->
                         expectWithMockedFilePath ("filepath.fs", 99) {
                             snapshot "123"
                             return 124
