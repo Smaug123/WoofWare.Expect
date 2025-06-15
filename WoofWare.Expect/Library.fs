@@ -15,6 +15,10 @@ type private SnapshotValue =
     | BareString of string
     | Json of string
 
+/// A dummy type which is here to provide better error messages when you supply
+/// the `snapshot` keyword multiple times.
+type YouHaveSuppliedMultipleSnapshots = private | NonConstructible
+
 /// The state accumulated by the `expect` builder. You should never find yourself interacting with this type.
 type ExpectState<'T> =
     private
@@ -35,7 +39,10 @@ module private Text =
 /// <param name="sourceOverride">Override the file path and line numbers reported in snapshots, so that your tests can be fully stable even on failure. (You almost certainly don't want to set this.)</param>
 type ExpectBuilder (?sourceOverride : string * int) =
     /// Combine two `ExpectState`s. The first one is the "expected" snapshot; the second is the "actual".
-    member _.Bind (state : ExpectState<unit>, f : unit -> ExpectState<'U>) : ExpectState<'U> =
+    member _.Bind
+        (state : ExpectState<YouHaveSuppliedMultipleSnapshots>, f : unit -> ExpectState<'U>)
+        : ExpectState<'U>
+        =
         let actual = f ()
 
         match state.Actual with
@@ -56,13 +63,13 @@ type ExpectBuilder (?sourceOverride : string * int) =
     [<CustomOperation("snapshot", MaintainsVariableSpaceUsingBind = true)>]
     member _.Snapshot
         (
-            state : ExpectState<'a>,
+            state : ExpectState<unit>,
             snapshot : string,
             [<CallerMemberName>] ?memberName : string,
             [<CallerLineNumber>] ?callerLine : int,
             [<CallerFilePath>] ?filePath : string
         )
-        : ExpectState<'a>
+        : ExpectState<YouHaveSuppliedMultipleSnapshots>
         =
         match state.Snapshot with
         | Some _ -> failwith "snapshot can only be specified once"
@@ -78,8 +85,9 @@ type ExpectBuilder (?sourceOverride : string * int) =
                     LineNumber = lineNumber
                 }
 
-            { state with
+            {
                 Snapshot = Some (SnapshotValue.BareString snapshot, callerInfo)
+                Actual = None
             }
 
     /// <summary>
@@ -92,13 +100,13 @@ type ExpectBuilder (?sourceOverride : string * int) =
     [<CustomOperation("snapshotJson", MaintainsVariableSpaceUsingBind = true)>]
     member _.SnapshotJson
         (
-            state : ExpectState<'a>,
+            state : ExpectState<unit>,
             snapshot : string,
             [<CallerMemberName>] ?memberName : string,
             [<CallerLineNumber>] ?callerLine : int,
             [<CallerFilePath>] ?filePath : string
         )
-        : ExpectState<'a>
+        : ExpectState<YouHaveSuppliedMultipleSnapshots>
         =
         match state.Snapshot with
         | Some _ -> failwith "snapshot can only be specified once"
@@ -114,8 +122,9 @@ type ExpectBuilder (?sourceOverride : string * int) =
                     LineNumber = lineNumber
                 }
 
-            { state with
+            {
                 Snapshot = Some (SnapshotValue.Json snapshot, callerInfo)
+                Actual = None
             }
 
     /// MaintainsVariableSpaceUsingBind causes this to be used; it's a dummy representing "no snapshot and no assertion".
