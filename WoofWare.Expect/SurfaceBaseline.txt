@@ -4,12 +4,14 @@ WoofWare.Expect.Builder.expectWithMockedFilePath [static method]: (string, int) 
 WoofWare.Expect.Builder.get_expect [static method]: unit -> WoofWare.Expect.ExpectBuilder
 WoofWare.Expect.ExpectBuilder inherit obj
 WoofWare.Expect.ExpectBuilder..ctor [constructor]: (string * int) option
-WoofWare.Expect.ExpectBuilder.Bind [method]: (unit WoofWare.Expect.ExpectState, unit -> 'U WoofWare.Expect.ExpectState) -> 'U WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectBuilder.Bind [method]: (WoofWare.Expect.YouHaveSuppliedMultipleSnapshots WoofWare.Expect.ExpectState, unit -> 'U WoofWare.Expect.ExpectState) -> 'U WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.Delay [method]: (unit -> 'T WoofWare.Expect.ExpectState) -> (unit -> 'T WoofWare.Expect.ExpectState)
 WoofWare.Expect.ExpectBuilder.Return [method]: 'T -> 'T WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.Return [method]: unit -> 'T WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.Run [method]: (unit -> 'T WoofWare.Expect.ExpectState) -> unit
-WoofWare.Expect.ExpectBuilder.Snapshot [method]: ('a WoofWare.Expect.ExpectState, string, string option, int option, string option) -> 'a WoofWare.Expect.ExpectState
-WoofWare.Expect.ExpectBuilder.SnapshotJson [method]: ('a WoofWare.Expect.ExpectState, string, string option, int option, string option) -> 'a WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectBuilder.Snapshot [method]: (unit WoofWare.Expect.ExpectState, string, string option, int option, string option) -> WoofWare.Expect.YouHaveSuppliedMultipleSnapshots WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectBuilder.SnapshotJson [method]: (unit WoofWare.Expect.ExpectState, string, string option, int option, string option) -> WoofWare.Expect.YouHaveSuppliedMultipleSnapshots WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectState`1 inherit obj, implements 'T WoofWare.Expect.ExpectState System.IEquatable, System.Collections.IStructuralEquatable, 'T WoofWare.Expect.ExpectState System.IComparable, System.IComparable, System.Collections.IStructuralComparable
 WoofWare.Expect.ExpectState`1.Equals [method]: ('T WoofWare.Expect.ExpectState, System.Collections.IEqualityComparer) -> bool
+WoofWare.Expect.YouHaveSuppliedMultipleSnapshots inherit obj, implements WoofWare.Expect.YouHaveSuppliedMultipleSnapshots System.IEquatable, System.Collections.IStructuralEquatable, WoofWare.Expect.YouHaveSuppliedMultipleSnapshots System.IComparable, System.IComparable, System.Collections.IStructuralComparable
+WoofWare.Expect.YouHaveSuppliedMultipleSnapshots.Equals [method]: (WoofWare.Expect.YouHaveSuppliedMultipleSnapshots, System.Collections.IEqualityComparer) -> bool
