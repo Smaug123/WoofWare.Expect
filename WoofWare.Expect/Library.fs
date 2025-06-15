@@ -32,8 +32,8 @@ module private Text =
 /// The builder which powers WoofWare.Expect.
 /// </summary>
 /// <remarks>You're not expected to construct this explicitly; it's a computation expression, available as <c>Builder.expect</c>.</remarks>
-/// <param name="filePathOverride">Override the file paths reported in snapshots, so that your tests can be fully stable even on failure. (You almost certainly don't want to set this.)</param>
-type ExpectBuilder (?filePathOverride : string) =
+/// <param name="sourceOverride">Override the file path and line numbers reported in snapshots, so that your tests can be fully stable even on failure. (You almost certainly don't want to set this.)</param>
+type ExpectBuilder (?sourceOverride : string * int) =
     /// Combine two `ExpectState`s. The first one is the "expected" snapshot; the second is the "actual".
     member _.Bind (state : ExpectState<unit>, f : unit -> ExpectState<'U>) : ExpectState<'U> =
         let actual = f ()
@@ -153,8 +153,8 @@ type ExpectBuilder (?filePathOverride : string) =
                 if not (JsonElement.DeepEquals (canonicalActual.RootElement, canonicalSnapshot.RootElement)) then
                     failwithf
                         "snapshot mismatch! snapshot at %s:%i (%s) was:\n\n%s\n\nactual was:\n\n%s"
-                        (filePathOverride |> Option.defaultValue source.FilePath)
-                        source.LineNumber
+                        (sourceOverride |> Option.map fst |> Option.defaultValue source.FilePath)
+                        (sourceOverride |> Option.map snd |> Option.defaultValue source.LineNumber)
                         source.MemberName
                         (canonicalSnapshot.RootElement.ToString () |> Text.predent '-')
                         (canonicalActual.RootElement.ToString () |> Text.predent '-')
@@ -165,8 +165,8 @@ type ExpectBuilder (?filePathOverride : string) =
                 if actual <> snapshot then
                     failwithf
                         "snapshot mismatch! snapshot at %s:%i (%s) was:\n\n%s\n\nactual was:\n\n%s"
-                        (filePathOverride |> Option.defaultValue source.FilePath)
-                        source.LineNumber
+                        (sourceOverride |> Option.map fst |> Option.defaultValue source.FilePath)
+                        (sourceOverride |> Option.map snd |> Option.defaultValue source.LineNumber)
                         source.MemberName
                         (snapshot |> Text.predent '-')
                         (actual |> Text.predent '+')
@@ -200,4 +200,4 @@ module Builder =
     /// You probably don't want to use this; use `expect` instead.
     /// The point of the mocked builder is to allow fully predictable testing of the WoofWare.Expect library itself.
     /// </remarks>
-    let expectWithMockedFilePath (path : string) = ExpectBuilder path
+    let expectWithMockedFilePath (path : string, line : int) = ExpectBuilder ((path, line))

@@ -1,9 +1,9 @@
 WoofWare.Expect.Builder inherit obj
 WoofWare.Expect.Builder.expect [static property]: [read-only] WoofWare.Expect.ExpectBuilder
-WoofWare.Expect.Builder.expectWithMockedFilePath [static method]: string -> WoofWare.Expect.ExpectBuilder
+WoofWare.Expect.Builder.expectWithMockedFilePath [static method]: (string, int) -> WoofWare.Expect.ExpectBuilder
 WoofWare.Expect.Builder.get_expect [static method]: unit -> WoofWare.Expect.ExpectBuilder
 WoofWare.Expect.ExpectBuilder inherit obj
-WoofWare.Expect.ExpectBuilder..ctor [constructor]: string option
+WoofWare.Expect.ExpectBuilder..ctor [constructor]: (string * int) option
 WoofWare.Expect.ExpectBuilder.Bind [method]: (unit WoofWare.Expect.ExpectState, unit -> 'U WoofWare.Expect.ExpectState) -> 'U WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.Delay [method]: (unit -> 'T WoofWare.Expect.ExpectState) -> (unit -> 'T WoofWare.Expect.ExpectState)
 WoofWare.Expect.ExpectBuilder.Return [method]: 'T -> 'T WoofWare.Expect.ExpectState
