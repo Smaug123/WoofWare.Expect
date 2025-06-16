@@ -19,6 +19,11 @@
       <EmbeddedResource Include="SyntaxCases\SingleQuoteManyLine.fs" />
       <EmbeddedResource Include="SyntaxCases\TripleQuoteInterveningComment.fs" />
       <EmbeddedResource Include="SyntaxCases\TripleQuoteOneLine.fs" />
+      <EmbeddedResource Include="SyntaxCases\RegexMetacharacters.fs" />
+      <EmbeddedResource Include="SyntaxCases\UnicodeCharacters.fs" />
+      <EmbeddedResource Include="SyntaxCases\MultilineComplex.fs" />
+      <EmbeddedResource Include="SyntaxCases\EdgeCases.fs" />
+      <EmbeddedResource Include="SyntaxCases\CommentsAndSpacing.fs" />
     </ItemGroup>
 
     <ItemGroup>
