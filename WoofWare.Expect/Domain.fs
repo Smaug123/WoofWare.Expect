@@ -14,15 +14,17 @@ type CallerInfo =
             LineNumber : int
         }
 
-type private SnapshotValue =
-    | BareString of string
-    | Json of string
+type private SnapshotValue<'T> =
+    | BareString of expected : string
+    | Json of expected : string
+    | Formatted of format : ('T -> string) * expected : string
 
 /// The state accumulated by the `expect` builder. You should never find yourself interacting with this type.
 type ExpectState<'T> =
     private
         {
-            Snapshot : (SnapshotValue * CallerInfo) option
+            Formatter : ('T -> string) option
+            Snapshot : (SnapshotValue<'T> * CallerInfo) option
             Actual : 'T option
         }
 

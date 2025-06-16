@@ -52,8 +52,15 @@ type ExpectBuilder (mode : Mode) =
         | Some _ -> failwith "somehow Actual came through with a Snapshot"
         | None ->
 
+        let formatter =
+            match state.Formatter, actual.Formatter with
+            | None, f -> f
+            | Some f, None -> Some f
+            | Some _, Some _ -> failwith "multiple formatters supplied for a single expect!"
+
         // Pass through the state structure when there's no actual value
         {
+            Formatter = formatter
             Snapshot = state.Snapshot
             Actual = actual.Actual
         }
@@ -85,6 +92,7 @@ type ExpectBuilder (mode : Mode) =
                 }
 
             {
+                Formatter = None
                 Snapshot = Some (SnapshotValue.BareString snapshot, callerInfo)
                 Actual = None
             }
@@ -94,7 +102,7 @@ type ExpectBuilder (mode : Mode) =
     /// which matches the JSON document that is this string.
     /// </summary>
     /// <remarks>
-    /// For example, <c>snapshot "123"</c> indicates the JSON integer 123.
+    /// For example, <c>snapshotJson "123"</c> indicates the JSON integer 123.
     /// </remarks>
     [<CustomOperation("snapshotJson", MaintainsVariableSpaceUsingBind = true)>]
     member _.SnapshotJson
@@ -122,13 +130,36 @@ type ExpectBuilder (mode : Mode) =
                 }
 
             {
+                Formatter = None
                 Snapshot = Some (SnapshotValue.Json snapshot, callerInfo)
                 Actual = None
             }
 
+    /// <summary>
+    /// Express that the actual value, when formatted by the given formatting function, should equal
+    /// this value.
+    /// </summary>
+    /// <remarks>
+    /// For example, <c>snapshotFormat (fun x -> x.ToString ()) "123"</c> is equivalent to <c>snapshot "123"</c>.
+    /// </remarks>
+    [<CustomOperation("snapshotFormat", MaintainsVariableSpaceUsingBind = true)>]
+    member _.SnapshotFormat<'T>
+        (
+            state : ExpectState<'T>,
+            formatter : 'T -> string
+        )
+        =
+            {
+                Formatter = Some formatter
+                Snapshot = state.Snapshot
+                Actual = state.Actual
+            }
+
+
     /// MaintainsVariableSpaceUsingBind causes this to be used; it's a dummy representing "no snapshot and no assertion".
     member _.Return (() : unit) : ExpectState<'T> =
         {
+            Formatter = None
             Snapshot = None
             Actual = None
         }
@@ -137,6 +168,7 @@ type ExpectBuilder (mode : Mode) =
     member _.Return (value : 'T) : ExpectState<'T> =
         {
             Snapshot = None
+            Formatter = None
             Actual = Some value
         }
 

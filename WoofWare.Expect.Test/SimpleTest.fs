@@ -41,3 +41,11 @@ actual was:
             snapshot @"123"
             return 123
         }
+
+    [<Test>]
+    let ``Formatting example`` () =
+        expect {
+            snapshot @"123"
+            snapshotFormat (fun x -> string<int> (x + 1))
+            return 123
+        }
