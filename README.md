@@ -1,5 +1,11 @@
 # WoofWare.Expect
 
+[![NuGet version](https://img.shields.io/nuget/v/WoofWare.Expect.svg?style=flat-square)](https://www.nuget.org/packages/WoofWare.Expect)
+[![GitHub Actions status](https://github.com/Smaug123/WoofWare.Expect/actions/workflows/dotnet.yaml/badge.svg)](https://github.com/Smaug123/WoofWare.Expect/actions?query=branch%3Amain)
+[![License file](https://img.shields.io/github/license/Smaug123/WoofWare.Expect)](./LICENSE)
+
+![Project logo: minimalist face of a cartoon Shiba Inu; one eye is a camera aperture.](./logo.png)
+
 An [expect-testing](https://blog.janestreet.com/the-joy-of-expect-tests/) library for F#.
 (Also known as "snapshot testing".)
 
