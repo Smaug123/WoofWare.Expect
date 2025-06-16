@@ -5,8 +5,8 @@ An [expect-testing](https://blog.janestreet.com/the-joy-of-expect-tests/) librar
 
 # Current status
 
-Basic mechanism works, but I haven't yet decided how the ergonomic updating of the input text will work.
-Ideally it would edit the input AST, but I don't yet know if that's viable.
+The basic mechanism works.
+Snapshot updating is vibe-coded with Opus 4 and is purely text-based; I didn't want to use the F# compiler services because that's a pretty heavyweight dependency which should be confined to a separate test runner entity.
 
 # How to use
 
