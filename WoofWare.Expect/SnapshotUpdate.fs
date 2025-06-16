@@ -254,15 +254,19 @@ module internal SnapshotUpdate =
 
     /// <remarks>Example usage:
     ///   <c>updateSnapshotAtLine [|lines-of-file|] 42 "new test output"</c>
-    ///
+    /// <br />
     /// This will find a snapshot call on line 42 like:
-    ///   snapshot "old value"       -> snapshot @"new test output"
-    ///   snapshot @"old value"      -> snapshot @"new test output"
-    ///   snapshot """old value"""   -> snapshot @"new test output"
-    ///   snapshot """multi
-    ///               line"""       -> snapshot """multi
-    ///                                            line"""
-    ///   snapshot "has \"\"\" in it" -> snapshot @"has """""" in it"
+    /// <ul>
+    ///   <li><c>snapshot "old value"</c> -> <c>snapshot @"new test output"</c></li>
+    ///   <li><c>snapshot @"old value"</c> -> <c>snapshot @"new test output"</c></li>
+    ///   <li><c>snapshot """old value"""</c> -> <c>snapshot @"new test output"</c></li>
+    ///   <li><c>snapshot "has \"\"\" in it"</c> -> <c>snapshot @"has """""" in it"</c></li>
+    ///   <li>
+    ///   <code>snapshot """multi
+    ///   line"""</code>       -> <code>snapshot """multi
+    ///   line"""</code>
+    ///   </li>
+    /// </ul>
     /// </remarks>
     let updateSnapshotAtLine (fileLines : string[]) (snapshotLine : int) (newValue : string) : string[] =
         match findSnapshotString fileLines snapshotLine with
