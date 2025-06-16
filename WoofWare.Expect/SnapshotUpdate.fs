@@ -24,6 +24,9 @@ type private Position =
 
 [<RequireQualifiedAccess>]
 module internal SnapshotUpdate =
+    [<Literal>]
+    let tripleQuote = "\"\"\""
+
     /// Convert a string position to line/column
     let private positionToLineColumn (text : string) (offset : int) : Position =
         let rec loop (line : int) (col : int) (totalOffset : int) (i : int) : Position =
@@ -121,7 +124,7 @@ module internal SnapshotUpdate =
             None
         else
             let contentStart = startPos + 3
-            let closePos = text.IndexOf ("\"\"\"", contentStart, StringComparison.Ordinal)
+            let closePos = text.IndexOf (tripleQuote, contentStart, StringComparison.Ordinal)
 
             if closePos = -1 then
                 None
@@ -199,20 +202,11 @@ module internal SnapshotUpdate =
                         )
                 )
 
-    /// Update the snapshot string with a new value; this doesn't edit the file on disk, but instead returns the new contents.
-    /// We always write verbatim strings (@"...") or triple-quoted strings for simplicity
+    /// Update the snapshot string with a new value; this doesn't edit the file on disk, but
+    /// instead returns the new contents.
+    /// We always write triple-quoted strings for simplicity.
     let private updateSnapshot (lines : string[]) (info : StringLiteralInfo) (newContent : string) : string[] =
-        // Choose the best string format based on content
-        let newString =
-            if newContent.Contains ("\"\"\"") then
-                // Content has triple quotes - must use verbatim string
-                "@\"" + newContent.Replace ("\"", "\"\"") + "\""
-            elif newContent.IndexOf '\n' >= 0 then
-                // Multi-line content - use triple quotes for readability
-                "\"\"\"" + newContent + "\"\"\""
-            else
-                // Single-line content - use verbatim string
-                "@\"" + newContent.Replace ("\"", "\"\"") + "\""
+        let newString = "@\"" + newContent.Replace ("\"", "\"\"") + "\""
 
         if info.StartLine = info.EndLine then
             // Single line update
@@ -220,7 +214,7 @@ module internal SnapshotUpdate =
             |> Array.mapi (fun i line ->
                 if i = info.StartLine - 1 then
                     let before = line.Substring (0, info.StartColumn)
-                    let after = line.Substring (info.EndColumn)
+                    let after = line.Substring info.EndColumn
                     before + newString + after
                 else
                     line
@@ -231,15 +225,23 @@ module internal SnapshotUpdate =
             let endLineIdx = info.EndLine - 1
 
             let before = lines.[startLineIdx].Substring (0, info.StartColumn)
-            let after = lines.[endLineIdx].Substring (info.EndColumn)
+            let after = lines.[endLineIdx].Substring info.EndColumn
 
             let newLines =
                 if newContent.IndexOf '\n' >= 0 then
                     // Keep as triple-quoted
+                    let split = newContent.Split '\n'
+
+                    match split with
+                    | [||] -> failwith "expected contents from split string"
+                    | [| single |] -> [| before + tripleQuote + single + tripleQuote + after |]
+                    | [| first ; last |] -> [| before + tripleQuote + first ; last + tripleQuote + after |]
+                    | split ->
+
                     [|
-                        yield before + "\"\"\""
-                        yield! newContent.Split ('\n')
-                        yield "\"\"\"" + after
+                        yield before + "\"\"\"" + split.[0]
+                        yield! split.[1 .. split.Length - 2]
+                        yield split.[split.Length - 1] + "\"\"\"" + after
                     |]
                 else
                     // Convert to single-line verbatim string

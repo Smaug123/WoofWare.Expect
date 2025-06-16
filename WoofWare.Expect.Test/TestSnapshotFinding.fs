@@ -16,8 +16,7 @@ module TestSnapshotFinding =
 
         expect {
             snapshot
-                """
-namespace BigExample
+                """namespace BigExample
 
 open WoofWare.Expect
 
@@ -27,7 +26,6 @@ module MyModule =
             snapshot @"replacement"
             return 123
         }
-
 """
 
             return SnapshotUpdate.updateSnapshotAtLine source 8 "replacement" |> String.concat "\n"
@@ -41,8 +39,7 @@ module MyModule =
 
         expect {
             snapshot
-                """
-namespace BigExample
+                """namespace BigExample
 
 open WoofWare.Expect
 
@@ -52,32 +49,6 @@ module MyModule =
             snapshot @"replacement"
             return 123
         }
-
-"""
-
-            return SnapshotUpdate.updateSnapshotAtLine source 8 "replacement" |> String.concat "\n"
-        }
-
-    [<Test>]
-    let ``Single-quote, many lines`` () =
-        let source =
-            Assembly.getEmbeddedResource typeof<Dummy>.Assembly "SingleQuoteManyLine.fs"
-            |> _.Split('\n')
-
-        expect {
-            snapshot
-                """
-namespace BigExample
-
-open WoofWare.Expect
-
-module MyModule =
-    let foo () =
-        expect {
-            snapshot @"replacement"
-            return 123
-        }
-
 """
 
             return SnapshotUpdate.updateSnapshotAtLine source 8 "replacement" |> String.concat "\n"
@@ -91,19 +62,44 @@ module MyModule =
 
         expect {
             snapshot
-                """
-namespace BigExample
+                """namespace BigExample
 
 open WoofWare.Expect
 
 module MyModule =
     let foo () =
         expect {
-            snapshot (* comment *) @"replacement"
+            snapshot (* comment *)
+                @"replacement"
+
             return 123
         }
-
 """
+
+            return SnapshotUpdate.updateSnapshotAtLine source 8 "replacement" |> String.concat "\n"
+        }
+
+    [<Test>]
+    let ``Single-quote, many lines`` () =
+        let source =
+            Assembly.getEmbeddedResource typeof<Dummy>.Assembly "SingleQuoteManyLine.fs"
+            |> _.Split('\n')
+
+        expect {
+            snapshot
+                @"namespace BigExample
+
+open WoofWare.Expect
+
+module MyModule =
+    let foo () =
+        expect {
+            snapshot
+                @""replacement""
+
+            return 123
+        }
+"
 
             return SnapshotUpdate.updateSnapshotAtLine source 8 "replacement" |> String.concat "\n"
         }

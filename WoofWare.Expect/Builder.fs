@@ -186,7 +186,7 @@ type ExpectBuilder (mode : Mode) =
                         line
                         source.MemberName
                         (snapshot |> Text.predent '-')
-                        (actual |> Text.predent '-')
+                        (actual |> Text.predent '+')
                     |> ExpectException
                     |> raise
                 | Mode.Assert ->
@@ -196,7 +196,7 @@ type ExpectBuilder (mode : Mode) =
                         source.LineNumber
                         source.MemberName
                         (snapshot |> Text.predent '-')
-                        (actual |> Text.predent '-')
+                        (actual |> Text.predent '+')
                     |> ExpectException
                     |> raise
                 | Mode.Update ->
