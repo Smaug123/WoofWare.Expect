@@ -170,9 +170,12 @@ type ExpectBuilder (mode : Mode) =
     /// </remarks>
     [<CustomOperation("withJsonSerializerOptions", MaintainsVariableSpaceUsingBind = true)>]
     member _.WithJsonSerializerOptions<'T> (state : ExpectState<'T>, jsonOptions : JsonSerializerOptions) =
-        { state with
-            JsonSerialiserOptions = Some jsonOptions
-        }
+        match state.JsonSerialiserOptions with
+        | Some _ -> failwith "Please don't supply withJsonSerializerOptions more than once"
+        | None ->
+            { state with
+                JsonSerialiserOptions = Some jsonOptions
+            }
 
     /// <summary>
     /// Express that the <c>return</c> value of this builder should be formatted using this function, before
@@ -183,9 +186,12 @@ type ExpectBuilder (mode : Mode) =
     /// </remarks>
     [<CustomOperation("withJsonDocOptions", MaintainsVariableSpaceUsingBind = true)>]
     member _.WithJsonDocOptions<'T> (state : ExpectState<'T>, jsonOptions : JsonDocumentOptions) =
-        { state with
-            JsonDocOptions = Some jsonOptions
-        }
+        match state.JsonDocOptions with
+        | Some _ -> failwith "Please don't supply withJsonDocOptions more than once"
+        | None ->
+            { state with
+                JsonDocOptions = Some jsonOptions
+            }
 
     /// MaintainsVariableSpaceUsingBind causes this to be used; it's a dummy representing "no snapshot and no assertion".
     member _.Return (() : unit) : ExpectState<'T> =
