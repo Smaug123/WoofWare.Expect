@@ -46,6 +46,8 @@ let ``This test fails: plain text comparison of ToString`` () =
     }
 ```
 
+## Updating an individual snapshot
+
 If a snapshot is failing, add a `'` to the `expect` builder and rerun.
 The rerun will throw, but it will update the snapshot; then remove the `'` again to put the test back into "assert snapshot" mode.
 
@@ -78,6 +80,51 @@ let ``Example of automatically updating`` () =
     }
 ```
 
+## Bulk update of snapshots
+
+*Warning*: when doing this, you should probably make sure your test fixture is `[<Parallelizable(ParallelScope.Children)>]` or less parallelizable,
+or the equivalent in your test runner of choice.
+Otherwise, the global state used by this mechanism may interfere with other fixtures.
+
+You can put WoofWare.Expect into "bulk update" mode as follows:
+
+```fsharp
+open NUnit.Framework
+open WoofWare.Expect
+
+[<TestFixture>]
+[<NonParallelizable>]
+module BulkUpdateExample =
+
+    [<OneTimeSetUp>]
+    let ``Prepare to bulk-update tests`` () =
+        // If you don't want to enter bulk-update mode, just replace this line with a no-op `()`.
+        // The `updateAllSnapshots` tear-down below will simply do nothing in that case.
+        GlobalBuilderConfig.enterBulkUpdateMode ()
+
+    [<OneTimeTearDown>]
+    let ``Update all tests`` () =
+        GlobalBuilderConfig.updateAllSnapshots ()
+
+    [<Test>]
+    let ``Snapshot 2`` () =
+        // this snapshot fails: the "expected" isn't even JSON!
+        expect {
+            snapshotJson ""
+
+            return Map.ofList [ "1", "hi" ; "2", "my" ; "3", "name" ; "4", "is" ]
+        }
+
+    [<Test>]
+    let ``Snapshot 1`` () =
+        // this snapshot fails: the "expected" is not equal to the "actual"
+        expect {
+            snapshotJson @"124"
+            return 123
+        }
+```
+
+Observe the `OneTimeSetUp` which sets global state to enter "bulk update" mode, and the `OneTimeTearDown` which performs all the updates to rectify failures which were accumulated during this test run.
 
 # Limitations
 

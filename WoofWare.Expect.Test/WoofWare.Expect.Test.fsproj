@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <Compile Include="Assembly.fs" />
+      <Compile Include="BulkUpdateExample.fs" />
       <Compile Include="SimpleTest.fs" />
       <Compile Include="TestSnapshotFinding.fs" />
       <Compile Include="TestSurface.fs" />
