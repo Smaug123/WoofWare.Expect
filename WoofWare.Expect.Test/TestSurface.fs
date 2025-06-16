@@ -18,7 +18,7 @@ module TestSurface =
     let ``Ensure public API is fully documented`` () =
         DocCoverage.assertFullyDocumented assembly
 
-    [<Test ; Explicit "Not yet published">]
+    [<Test ; Explicit>]
     // https://github.com/nunit/nunit3-vs-adapter/issues/876
     let ``EnsureVersionIsMonotonic`` () =
         MonotonicVersion.validate assembly "WoofWare.Expect"
