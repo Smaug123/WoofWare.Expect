@@ -4,6 +4,10 @@ WoofWare.Expect.Builder.expect' [static property]: [read-only] WoofWare.Expect.E
 WoofWare.Expect.Builder.expectWithMockedFilePath [static method]: (string, int) -> WoofWare.Expect.ExpectBuilder
 WoofWare.Expect.Builder.get_expect [static method]: unit -> WoofWare.Expect.ExpectBuilder
 WoofWare.Expect.Builder.get_expect' [static method]: unit -> WoofWare.Expect.ExpectBuilder
+WoofWare.Expect.CallerInfo inherit obj, implements WoofWare.Expect.CallerInfo System.IEquatable, System.Collections.IStructuralEquatable, WoofWare.Expect.CallerInfo System.IComparable, System.IComparable, System.Collections.IStructuralComparable
+WoofWare.Expect.CallerInfo.Equals [method]: (WoofWare.Expect.CallerInfo, System.Collections.IEqualityComparer) -> bool
+WoofWare.Expect.CompletedSnapshot inherit obj, implements WoofWare.Expect.CompletedSnapshot System.IEquatable, System.Collections.IStructuralEquatable, WoofWare.Expect.CompletedSnapshot System.IComparable, System.IComparable, System.Collections.IStructuralComparable
+WoofWare.Expect.CompletedSnapshot.Equals [method]: (WoofWare.Expect.CompletedSnapshot, System.Collections.IEqualityComparer) -> bool
 WoofWare.Expect.ExpectBuilder inherit obj
 WoofWare.Expect.ExpectBuilder..ctor [constructor]: (string * int)
 WoofWare.Expect.ExpectBuilder..ctor [constructor]: bool
@@ -23,6 +27,10 @@ WoofWare.Expect.ExpectException.Equals [method]: System.Exception -> bool
 WoofWare.Expect.ExpectException.Message [property]: [read-only] string
 WoofWare.Expect.ExpectState`1 inherit obj, implements 'T WoofWare.Expect.ExpectState System.IEquatable, System.Collections.IStructuralEquatable, 'T WoofWare.Expect.ExpectState System.IComparable, System.IComparable, System.Collections.IStructuralComparable
 WoofWare.Expect.ExpectState`1.Equals [method]: ('T WoofWare.Expect.ExpectState, System.Collections.IEqualityComparer) -> bool
+WoofWare.Expect.GlobalBuilderConfig inherit obj
+WoofWare.Expect.GlobalBuilderConfig.clearTests [static method]: unit -> unit
+WoofWare.Expect.GlobalBuilderConfig.enterBulkUpdateMode [static method]: unit -> unit
+WoofWare.Expect.GlobalBuilderConfig.updateAllSnapshots [static method]: unit -> unit
 WoofWare.Expect.Mode inherit obj, implements WoofWare.Expect.Mode System.IEquatable, System.Collections.IStructuralEquatable, WoofWare.Expect.Mode System.IComparable, System.IComparable, System.Collections.IStructuralComparable
 WoofWare.Expect.Mode.Equals [method]: (WoofWare.Expect.Mode, System.Collections.IEqualityComparer) -> bool
 WoofWare.Expect.YouHaveSuppliedMultipleSnapshots inherit obj, implements WoofWare.Expect.YouHaveSuppliedMultipleSnapshots System.IEquatable, System.Collections.IStructuralEquatable, WoofWare.Expect.YouHaveSuppliedMultipleSnapshots System.IComparable, System.IComparable, System.Collections.IStructuralComparable

@@ -2,19 +2,6 @@
 
 open System.IO
 open System.Runtime.CompilerServices
-open System.Text.Json
-open System.Text.Json.Serialization
-
-type private CallerInfo =
-    {
-        MemberName : string
-        FilePath : string
-        LineNumber : int
-    }
-
-type private SnapshotValue =
-    | BareString of string
-    | Json of string
 
 /// An exception indicating that a value failed to match its snapshot.
 exception ExpectException of Message : string
@@ -22,19 +9,6 @@ exception ExpectException of Message : string
 /// A dummy type which is here to provide better error messages when you supply
 /// the `snapshot` keyword multiple times.
 type YouHaveSuppliedMultipleSnapshots = private | NonConstructible
-
-/// The state accumulated by the `expect` builder. You should never find yourself interacting with this type.
-type ExpectState<'T> =
-    private
-        {
-            Snapshot : (SnapshotValue * CallerInfo) option
-            Actual : 'T option
-        }
-
-[<RequireQualifiedAccess>]
-module private Text =
-    let predent (c : char) (s : string) =
-        s.Split '\n' |> Seq.map (sprintf "%c %s" c) |> String.concat "\n"
 
 /// <summary>Specify how the Expect computation expression treats failures.</summary>
 /// <remarks>You probably don't want to use this directly; use the computation expression definitions
@@ -171,71 +145,49 @@ type ExpectBuilder (mode : Mode) =
 
     /// Computation expression `Run`, which runs a `Delay`ed snapshot assertion, throwing if the assertion fails.
     member _.Run (f : unit -> ExpectState<'T>) : unit =
-        let state = f ()
+        let state = f () |> CompletedSnapshotGeneric.make
 
-        let options = JsonFSharpOptions.Default().ToJsonSerializerOptions ()
-
-        match state.Snapshot, state.Actual with
-        | Some (snapshot, source), Some actual ->
-            let raiseError (snapshot : string) (actual : string) : unit =
-                match mode with
-                | Mode.AssertMockingSource (mockSource, line) ->
+        let raiseError (snapshot : string) (actual : string) : unit =
+            match mode with
+            | Mode.AssertMockingSource (mockSource, line) ->
+                sprintf
+                    "snapshot mismatch! snapshot at %s:%i (%s) was:\n\n%s\n\nactual was:\n\n%s"
+                    mockSource
+                    line
+                    state.Caller.MemberName
+                    (snapshot |> Text.predent '-')
+                    (actual |> Text.predent '+')
+                |> ExpectException
+                |> raise
+            | Mode.Assert ->
+                if GlobalBuilderConfig.bulkUpdate.Value > 0 then
+                    GlobalBuilderConfig.registerTest state
+                else
                     sprintf
                         "snapshot mismatch! snapshot at %s:%i (%s) was:\n\n%s\n\nactual was:\n\n%s"
-                        mockSource
-                        line
-                        source.MemberName
+                        state.Caller.FilePath
+                        state.Caller.LineNumber
+                        state.Caller.MemberName
                         (snapshot |> Text.predent '-')
                         (actual |> Text.predent '+')
                     |> ExpectException
                     |> raise
-                | Mode.Assert ->
-                    sprintf
-                        "snapshot mismatch! snapshot at %s:%i (%s) was:\n\n%s\n\nactual was:\n\n%s"
-                        source.FilePath
-                        source.LineNumber
-                        source.MemberName
-                        (snapshot |> Text.predent '-')
-                        (actual |> Text.predent '+')
-                    |> ExpectException
-                    |> raise
-                | Mode.Update ->
-                    let lines = File.ReadAllLines source.FilePath
-                    let oldContents = String.concat "\n" lines
-                    let lines = SnapshotUpdate.updateSnapshotAtLine lines source.LineNumber actual
-                    File.WriteAllLines (source.FilePath, lines)
-                    failwith ("Snapshot successfully updated. Previous contents:\n" + oldContents)
+            | Mode.Update ->
+                let lines = File.ReadAllLines state.Caller.FilePath
+                let oldContents = String.concat "\n" lines
+                let lines = SnapshotUpdate.updateSnapshotAtLine lines state.Caller.LineNumber actual
+                File.WriteAllLines (state.Caller.FilePath, lines)
+                failwith ("Snapshot successfully updated. Previous contents:\n" + oldContents)
 
-            match snapshot with
-            | SnapshotValue.Json snapshot ->
-                let canonicalSnapshot = JsonDocument.Parse snapshot
-
-                let canonicalActual =
-                    JsonSerializer.Serialize (actual, options) |> JsonDocument.Parse
-
-                if not (JsonElement.DeepEquals (canonicalActual.RootElement, canonicalSnapshot.RootElement)) then
-                    raiseError (canonicalSnapshot.RootElement.ToString ()) (canonicalActual.RootElement.ToString ())
-                else
-                    match mode with
-                    | Mode.Update ->
-                        failwith
-                            "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a snapshot."
-                    | _ -> ()
-
-            | SnapshotValue.BareString snapshot ->
-                let actual = actual.ToString ()
-
-                if actual <> snapshot then
-                    raiseError snapshot actual
-                else
-                    match mode with
-                    | Mode.Update ->
-                        failwith
-                            "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a snapshot."
-                    | _ -> ()
-
-        | None, _ -> failwith "Must specify snapshot"
-        | _, None -> failwith "Must specify actual value with 'return'"
+        match CompletedSnapshotGeneric.passesAssertion state with
+        | None ->
+            match mode, GlobalBuilderConfig.bulkUpdate.Value with
+            | Mode.Update, _
+            | _, 1 ->
+                failwith
+                    "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a single snapshot; disable `GlobalBuilderConfig.bulkUpdate` to move back to assertion-checking mode."
+            | _ -> ()
+        | Some (expected, actual) -> raiseError expected actual
 
 /// Module containing the `expect` builder.
 [<AutoOpen>]

@@ -274,3 +274,31 @@ module internal SnapshotUpdate =
             Console.Error.WriteLine ("String literal to update: " + string<StringLiteralInfo> info)
             updateSnapshot fileLines info newValue
         | None -> failwithf "Could not find string literal after snapshot at line %d" snapshotLine
+
+    /// <summary>
+    /// Bulk-apply all the snapshot replacements.
+    /// </summary>
+    /// <param name="fileLines">The original file contents, as an array of lines.</param>
+    /// <param name="sources">The (unsorted) line numbers of the snapshots which need to be replaced, and the replacement value for each.</param>
+    /// <returns>The entire desired new contents of the file, as an array of lines.</returns>
+    let private updateAllLines (fileLines : string[]) (sources : (int * string) seq) : string[] =
+        sources
+        |> Seq.sortByDescending fst
+        |> Seq.fold (fun lines (lineNum, replacement) -> updateSnapshotAtLine lines lineNum replacement) fileLines
+
+    /// <summary>
+    /// Update every failed snapshot in the input, editing the files on disk.
+    /// </summary>
+    let updateAll (sources : CompletedSnapshot seq) : unit =
+        sources
+        |> Seq.groupBy (fun csc -> csc.CallerInfo.FilePath)
+        |> Seq.iter (fun (callerFile, callers) ->
+            let contents = System.IO.File.ReadAllLines callerFile
+
+            let sources =
+                callers |> Seq.map (fun csc -> csc.CallerInfo.LineNumber, csc.Replacement)
+
+            let newContents = updateAllLines contents sources
+
+            System.IO.File.WriteAllLines (callerFile, newContents)
+        )
