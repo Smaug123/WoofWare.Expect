@@ -97,6 +97,8 @@ module BulkUpdateExample =
 
     [<OneTimeSetUp>]
     let ``Prepare to bulk-update tests`` () =
+        // If you don't want to enter bulk-update mode, just replace this line with a no-op `()`.
+        // The `updateAllSnapshots` tear-down below will simply do nothing in that case.
         GlobalBuilderConfig.enterBulkUpdateMode ()
 
     [<OneTimeTearDown>]
