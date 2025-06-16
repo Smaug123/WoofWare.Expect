@@ -35,7 +35,7 @@ module MyModule =
 
     let tripleQuotesInContent () =
         expect {
-            snapshot """This has """""" in the middle"""
+            snapshot """This has """ """ in the middle"""
             return "triple"
         }
 
@@ -47,23 +47,29 @@ module MyModule =
 
     let veryLongLine () =
         expect {
-            snapshot @"This is a very long line that goes on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and contains over 300 characters to test how the parser handles very long single-line strings"
+            snapshot
+                @"This is a very long line that goes on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and on and contains over 300 characters to test how the parser handles very long single-line strings"
+
             return "long line"
         }
 
     let leadingNewlines () =
         expect {
-            snapshot """
+            snapshot
+                """
 
 Starts with newlines"""
+
             return "leading"
         }
 
     let trailingNewlines () =
         expect {
-            snapshot """Ends with newlines
+            snapshot
+                """Ends with newlines
 
 
 """
+
             return "trailing"
         }
