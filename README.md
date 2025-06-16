@@ -36,6 +36,39 @@ let ``This test fails: plain text comparison of ToString`` () =
     }
 ```
 
+If a snapshot is failing, add a `'` to the `expect` builder and rerun.
+The rerun will throw, but it will update the snapshot; then remove the `'` again to put the test back into "assert snapshot" mode.
+
+```fsharp
+[<Test>]
+let ``Example of automatically updating`` () =
+    // This test fails...
+    expect {
+        snapshotJson "123"
+        return 124
+    }
+
+    // so make this change:
+    expect' {
+        snapshotJson "123"
+        return 124
+    }
+
+    // and rerunning converts the result to this:
+    expect' {
+        snapshotJson @"124"
+        return 124
+    }
+
+    // That test will always throw, because it's not in "assertion" mode but in "update" mode;
+    // so finally, remove the `'` again. This test now passes!
+    expect {
+        snapshotJson @"124"
+        return 124
+    }
+```
+
+
 # Limitations
 
 * The snapshot updating mechanism *requires* you to use verbatim string literals. While the test assertions will work correctly if you do `snapshot ("foo" + "bar" + f 3)`, for example, the updating code is liable to do something undefined in that case. Also do not use format strings (`$"blah"`).
