@@ -14,17 +14,22 @@ type CallerInfo =
             LineNumber : int
         }
 
-type private SnapshotValue<'T> =
-    | BareString of expected : string
+type private SnapshotValue =
     | Json of expected : string
-    | Formatted of format : ('T -> string) * expected : string
+    | Formatted of expected : string
+
+type private CompletedSnapshotValue<'T> =
+    | Json of expected : string * JsonSerializerOptions * JsonDocumentOptions
+    | Formatted of expected : string * format : ('T -> string)
 
 /// The state accumulated by the `expect` builder. You should never find yourself interacting with this type.
 type ExpectState<'T> =
     private
         {
             Formatter : ('T -> string) option
-            Snapshot : (SnapshotValue<'T> * CallerInfo) option
+            JsonSerialiserOptions : JsonSerializerOptions option
+            JsonDocOptions : JsonDocumentOptions option
+            Snapshot : (SnapshotValue * CallerInfo) option
             Actual : 'T option
         }
 
@@ -32,16 +37,42 @@ type ExpectState<'T> =
 type internal CompletedSnapshotGeneric<'T> =
     private
         {
-            SnapshotValue : SnapshotValue
+            SnapshotValue : CompletedSnapshotValue<'T>
             Caller : CallerInfo
             Actual : 'T
         }
 
 [<RequireQualifiedAccess>]
 module internal CompletedSnapshotGeneric =
+    let private defaultJsonSerialiserOptions : JsonSerializerOptions =
+        let options = JsonFSharpOptions.Default().ToJsonSerializerOptions ()
+        options.AllowTrailingCommas <- true
+        options.WriteIndented <- true
+        options
+
+    let private defaultJsonDocOptions : JsonDocumentOptions =
+        let options = JsonDocumentOptions (AllowTrailingCommas = true)
+        options
+
     let make (state : ExpectState<'T>) : CompletedSnapshotGeneric<'T> =
         match state.Snapshot, state.Actual with
         | Some (snapshot, source), Some actual ->
+            let snapshot =
+                match snapshot with
+                | SnapshotValue.Json expected ->
+                    let serOpts =
+                        state.JsonSerialiserOptions |> Option.defaultValue defaultJsonSerialiserOptions
+
+                    let docOpts = state.JsonDocOptions |> Option.defaultValue defaultJsonDocOptions
+                    CompletedSnapshotValue.Json (expected, serOpts, docOpts)
+                | SnapshotValue.Formatted expected ->
+                    let formatter =
+                        match state.Formatter with
+                        | None -> fun x -> x.ToString ()
+                        | Some f -> f
+
+                    CompletedSnapshotValue.Formatted (expected, formatter)
+
             {
                 SnapshotValue = snapshot
                 Caller = source
@@ -50,46 +81,38 @@ module internal CompletedSnapshotGeneric =
         | None, _ -> failwith "Must specify snapshot"
         | _, None -> failwith "Must specify actual value with 'return'"
 
-    let private jsonOptions =
-        let options = JsonFSharpOptions.Default().ToJsonSerializerOptions ()
-        options.AllowTrailingCommas <- true
-        options.WriteIndented <- true
-        options
-
     let internal replacement (s : CompletedSnapshotGeneric<'T>) =
         match s.SnapshotValue with
-        | SnapshotValue.BareString _existing -> s.Actual.ToString ()
-        | SnapshotValue.Json _existing ->
-            JsonSerializer.Serialize (s.Actual, jsonOptions)
+        | CompletedSnapshotValue.Json (_existing, options, _) ->
+            JsonSerializer.Serialize (s.Actual, options)
             |> JsonDocument.Parse
             |> _.RootElement
             |> _.ToString()
+        | CompletedSnapshotValue.Formatted (_existing, f) -> f s.Actual
 
     /// Returns None if the assertion passes, or Some (expected, actual) if the assertion fails.
     let internal passesAssertion (state : CompletedSnapshotGeneric<'T>) : (string * string) option =
         match state.SnapshotValue with
-        | SnapshotValue.Json snapshot ->
+        | CompletedSnapshotValue.Formatted (snapshot, f) ->
+            let actual = f state.Actual
+            if actual = snapshot then None else Some (snapshot, actual)
+        | CompletedSnapshotValue.Json (snapshot, jsonSerOptions, jsonDocOptions) ->
             let canonicalSnapshot =
                 try
-                    JsonDocument.Parse snapshot |> Some
+                    JsonDocument.Parse (snapshot, jsonDocOptions) |> Some
                 with _ ->
                     None
 
             let canonicalActual =
-                JsonSerializer.Serialize (state.Actual, jsonOptions) |> JsonDocument.Parse
+                JsonSerializer.Serialize (state.Actual, jsonSerOptions) |> JsonDocument.Parse
 
             match canonicalSnapshot with
-            | None -> Some (snapshot, canonicalActual.RootElement.ToString ())
+            | None -> Some ("[JSON failed to parse:] " + snapshot, canonicalActual.RootElement.ToString ())
             | Some canonicalSnapshot ->
                 if not (JsonElement.DeepEquals (canonicalActual.RootElement, canonicalSnapshot.RootElement)) then
                     Some (canonicalSnapshot.RootElement.ToString (), canonicalActual.RootElement.ToString ())
                 else
                     None
-
-        | SnapshotValue.BareString snapshot ->
-            let actual = state.Actual.ToString ()
-
-            if actual = snapshot then None else Some (snapshot, actual)
 
 /// Represents a snapshot test that has failed and is awaiting update or report to the user.
 type CompletedSnapshot =

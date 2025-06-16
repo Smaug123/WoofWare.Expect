@@ -1,5 +1,6 @@
 namespace WoofWare.Expect.Test
 
+open System.Text.Json
 open WoofWare.Expect
 open NUnit.Framework
 
@@ -45,7 +46,58 @@ actual was:
     [<Test>]
     let ``Formatting example`` () =
         expect {
-            snapshot @"123"
-            snapshotFormat (fun x -> string<int> (x + 1))
+            withFormat (fun x -> x.GetType().Name)
+            snapshot @"Int32"
             return 123
+        }
+
+        expect {
+            snapshot @"Int32"
+            withFormat (fun x -> x.GetType().Name)
+            return 123
+        }
+
+    [<Test>]
+    let ``Custom JSON output`` () =
+        // Out of the box, comments in snapshots cause the JSON parser to throw, so the snapshot fails to match...
+        expect {
+            snapshot
+                @"snapshot mismatch! snapshot at file.fs:99 (Custom JSON output) was:
+
+- [JSON failed to parse:] {
+-     // a key here
+-     ""a"":3
+- }
+
+actual was:
+
++ {
++   ""a"": 3
++ }"
+
+            return
+                Assert.Throws<ExpectException> (fun () ->
+                    expectWithMockedFilePath ("file.fs", 99) {
+                        snapshotJson
+                            @"{
+    // a key here
+    ""a"":3
+}"
+
+                        return Map.ofList [ "a", 3 ]
+                    }
+                )
+                |> _.Message
+        }
+
+        // but it can be made to like them!
+        expect {
+            snapshotJson
+                @"{
+                // a key here
+                ""a"":3
+            }"
+
+            withJsonDocOptions (JsonDocumentOptions (CommentHandling = JsonCommentHandling.Skip))
+            return Map.ofList [ "a", 3 ]
         }

@@ -2,13 +2,10 @@
 
 open System.IO
 open System.Runtime.CompilerServices
+open System.Text.Json
 
 /// An exception indicating that a value failed to match its snapshot.
 exception ExpectException of Message : string
-
-/// A dummy type which is here to provide better error messages when you supply
-/// the `snapshot` keyword multiple times.
-type YouHaveSuppliedMultipleSnapshots = private | NonConstructible
 
 /// <summary>Specify how the Expect computation expression treats failures.</summary>
 /// <remarks>You probably don't want to use this directly; use the computation expression definitions
@@ -38,10 +35,7 @@ type ExpectBuilder (mode : Mode) =
             ExpectBuilder Mode.Assert
 
     /// Combine two `ExpectState`s. The first one is the "expected" snapshot; the second is the "actual".
-    member _.Bind
-        (state : ExpectState<YouHaveSuppliedMultipleSnapshots>, f : unit -> ExpectState<'U>)
-        : ExpectState<'U>
-        =
+    member _.Bind<'U> (state : ExpectState<'U>, f : unit -> ExpectState<'U>) : ExpectState<'U> =
         let actual = f ()
 
         match state.Actual with
@@ -58,24 +52,38 @@ type ExpectBuilder (mode : Mode) =
             | Some f, None -> Some f
             | Some _, Some _ -> failwith "multiple formatters supplied for a single expect!"
 
+        let jsonSerOptions =
+            match state.JsonSerialiserOptions, actual.JsonSerialiserOptions with
+            | None, f -> f
+            | Some f, None -> Some f
+            | Some _, Some _ -> failwith "multiple JSON serialiser options supplied for a single expect!"
+
+        let jsonDocOptions =
+            match state.JsonDocOptions, actual.JsonDocOptions with
+            | None, f -> f
+            | Some f, None -> Some f
+            | Some _, Some _ -> failwith "multiple JSON document options supplied for a single expect!"
+
         // Pass through the state structure when there's no actual value
         {
             Formatter = formatter
             Snapshot = state.Snapshot
             Actual = actual.Actual
+            JsonSerialiserOptions = jsonSerOptions
+            JsonDocOptions = jsonDocOptions
         }
 
     /// <summary>Express that the actual value's <c>ToString</c> should identically equal this string.</summary>
     [<CustomOperation("snapshot", MaintainsVariableSpaceUsingBind = true)>]
-    member _.Snapshot
+    member _.Snapshot<'a>
         (
-            state : ExpectState<unit>,
+            state : ExpectState<'a>,
             snapshot : string,
             [<CallerMemberName>] ?memberName : string,
             [<CallerLineNumber>] ?callerLine : int,
             [<CallerFilePath>] ?filePath : string
         )
-        : ExpectState<YouHaveSuppliedMultipleSnapshots>
+        : ExpectState<'a>
         =
         match state.Snapshot with
         | Some _ -> failwith "snapshot can only be specified once"
@@ -91,9 +99,8 @@ type ExpectBuilder (mode : Mode) =
                     LineNumber = lineNumber
                 }
 
-            {
-                Formatter = None
-                Snapshot = Some (SnapshotValue.BareString snapshot, callerInfo)
+            { state with
+                Snapshot = Some (SnapshotValue.Formatted snapshot, callerInfo)
                 Actual = None
             }
 
@@ -105,7 +112,7 @@ type ExpectBuilder (mode : Mode) =
     /// For example, <c>snapshotJson "123"</c> indicates the JSON integer 123.
     /// </remarks>
     [<CustomOperation("snapshotJson", MaintainsVariableSpaceUsingBind = true)>]
-    member _.SnapshotJson
+    member _.SnapshotJson<'a>
         (
             state : ExpectState<unit>,
             snapshot : string,
@@ -113,7 +120,7 @@ type ExpectBuilder (mode : Mode) =
             [<CallerLineNumber>] ?callerLine : int,
             [<CallerFilePath>] ?filePath : string
         )
-        : ExpectState<YouHaveSuppliedMultipleSnapshots>
+        : ExpectState<'a>
         =
         match state.Snapshot with
         | Some _ -> failwith "snapshot can only be specified once"
@@ -131,35 +138,61 @@ type ExpectBuilder (mode : Mode) =
 
             {
                 Formatter = None
+                JsonSerialiserOptions = state.JsonSerialiserOptions
+                JsonDocOptions = state.JsonDocOptions
                 Snapshot = Some (SnapshotValue.Json snapshot, callerInfo)
                 Actual = None
             }
 
     /// <summary>
-    /// Express that the actual value, when formatted by the given formatting function, should equal
+    /// Express that the <c>return</c> value of this builder should be formatted using this function, before
+    /// comparing to the snapshot.
     /// this value.
     /// </summary>
     /// <remarks>
-    /// For example, <c>snapshotFormat (fun x -> x.ToString ()) "123"</c> is equivalent to <c>snapshot "123"</c>.
+    /// For example, <c>withFormat (fun x -> x.ToString ()) "123"</c> is equivalent to <c>snapshot "123"</c>.
     /// </remarks>
-    [<CustomOperation("snapshotFormat", MaintainsVariableSpaceUsingBind = true)>]
-    member _.SnapshotFormat<'T>
-        (
-            state : ExpectState<'T>,
-            formatter : 'T -> string
-        )
-        =
-            {
+    [<CustomOperation("withFormat", MaintainsVariableSpaceUsingBind = true)>]
+    member _.WithFormat<'T> (state : ExpectState<'T>, formatter : 'T -> string) =
+        match state.Formatter with
+        | Some _ -> failwith "Please don't supply withFormat more than once"
+        | None ->
+            { state with
                 Formatter = Some formatter
-                Snapshot = state.Snapshot
-                Actual = state.Actual
             }
 
+    /// <summary>
+    /// Express that the <c>return</c> value of this builder should be formatted using this function, before
+    /// writing it out as a snapshot.
+    /// </summary>
+    /// <remarks>
+    /// This takes effect only when writing out the updated snapshot; it has no effect when merely performing a snapshot assertion.
+    /// </remarks>
+    [<CustomOperation("withJsonSerializerOptions", MaintainsVariableSpaceUsingBind = true)>]
+    member _.WithJsonSerializerOptions<'T> (state : ExpectState<'T>, jsonOptions : JsonSerializerOptions) =
+        { state with
+            JsonSerialiserOptions = Some jsonOptions
+        }
+
+    /// <summary>
+    /// Express that the <c>return</c> value of this builder should be formatted using this function, before
+    /// writing it out as a snapshot.
+    /// </summary>
+    /// <remarks>
+    /// This takes effect only when writing out the updated snapshot; it has no effect when merely performing a snapshot assertion.
+    /// </remarks>
+    [<CustomOperation("withJsonDocOptions", MaintainsVariableSpaceUsingBind = true)>]
+    member _.WithJsonDocOptions<'T> (state : ExpectState<'T>, jsonOptions : JsonDocumentOptions) =
+        { state with
+            JsonDocOptions = Some jsonOptions
+        }
 
     /// MaintainsVariableSpaceUsingBind causes this to be used; it's a dummy representing "no snapshot and no assertion".
     member _.Return (() : unit) : ExpectState<'T> =
         {
             Formatter = None
+            JsonSerialiserOptions = None
+            JsonDocOptions = None
             Snapshot = None
             Actual = None
         }
@@ -169,6 +202,8 @@ type ExpectBuilder (mode : Mode) =
         {
             Snapshot = None
             Formatter = None
+            JsonDocOptions = None
+            JsonSerialiserOptions = None
             Actual = Some value
         }
 
