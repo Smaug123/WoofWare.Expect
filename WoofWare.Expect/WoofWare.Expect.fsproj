@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
       <TargetFramework>netstandard2.0</TargetFramework>
@@ -23,9 +23,9 @@
           <Pack>True</Pack>
           <PackagePath>\</PackagePath>
         </None>
-        <None Include="..\logo.png">
+        <None Include="..\logos\logo-light-background.png">
           <Pack>True</Pack>
-          <PackagePath>\</PackagePath>
+          <PackagePath>\logo.png</PackagePath>
         </None>
         <EmbeddedResource Include="SurfaceBaseline.txt"/>
         <EmbeddedResource Include="version.json"/>

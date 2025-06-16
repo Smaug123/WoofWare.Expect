@@ -5,6 +5,7 @@
   ],
   "pathFilters": [
     ":/WoofWare.Expect/",
+    ":/logos/",
     ":/README.md",
     ":/Directory.Build.props",
     ":/LICENSE"
