@@ -204,7 +204,7 @@ module internal SnapshotUpdate =
 
     /// Update the snapshot string with a new value; this doesn't edit the file on disk, but
     /// instead returns the new contents.
-    /// We always write triple-quoted strings for simplicity.
+    /// We always write single-quoted @-strings for simplicity.
     let private updateSnapshot (lines : string[]) (info : StringLiteralInfo) (newContent : string) : string[] =
         let newString = "@\"" + newContent.Replace ("\"", "\"\"") + "\""
 
@@ -229,19 +229,18 @@ module internal SnapshotUpdate =
 
             let newLines =
                 if newContent.IndexOf '\n' >= 0 then
-                    // Keep as triple-quoted
-                    let split = newContent.Split '\n'
+                    let split = newContent.Replace("\"", "\"\"").Split ('\n')
 
                     match split with
                     | [||] -> failwith "expected contents from split string"
-                    | [| single |] -> [| before + tripleQuote + single + tripleQuote + after |]
-                    | [| first ; last |] -> [| before + tripleQuote + first ; last + tripleQuote + after |]
+                    | [| single |] -> [| before + "@\"" + single + "\"" + after |]
+                    | [| first ; last |] -> [| before + "@\"" + first ; last + "\"" + after |]
                     | split ->
 
                     [|
-                        yield before + "\"\"\"" + split.[0]
+                        yield before + "@\"" + split.[0]
                         yield! split.[1 .. split.Length - 2]
-                        yield split.[split.Length - 1] + "\"\"\"" + after
+                        yield split.[split.Length - 1] + "\"" + after
                     |]
                 else
                     // Convert to single-line verbatim string
