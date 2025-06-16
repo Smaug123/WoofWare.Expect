@@ -13,7 +13,6 @@
       <Compile Include="Assembly.fs" />
       <Compile Include="BulkUpdateExample.fs" />
       <Compile Include="SimpleTest.fs" />
-      <Compile Include="TestSnapshotFinding.fs" />
       <Compile Include="TestSurface.fs" />
       <EmbeddedResource Include="SyntaxCases\AtStringOneLine.fs" />
       <EmbeddedResource Include="SyntaxCases\SingleQuoteManyLine.fs" />
@@ -41,6 +40,8 @@
     <ItemGroup>
       <Compile Include="TestSnapshotFinding\TestUnicodeCharacters.fs" />
       <Compile Include="TestSnapshotFinding\TestMultilineComplex.fs" />
+      <Compile Include="TestSnapshotFinding\TestEdgeCases.fs" />
+      <Compile Include="TestSnapshotFinding\TestSnapshotFinding.fs" />
     </ItemGroup>
 
 </Project>
