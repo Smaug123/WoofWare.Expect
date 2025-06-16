@@ -1,7 +1,9 @@
 WoofWare.Expect.Builder inherit obj
 WoofWare.Expect.Builder.expect [static property]: [read-only] WoofWare.Expect.ExpectBuilder
+WoofWare.Expect.Builder.expect' [static property]: [read-only] WoofWare.Expect.ExpectBuilder
 WoofWare.Expect.Builder.expectWithMockedFilePath [static method]: (string, int) -> WoofWare.Expect.ExpectBuilder
 WoofWare.Expect.Builder.get_expect [static method]: unit -> WoofWare.Expect.ExpectBuilder
+WoofWare.Expect.Builder.get_expect' [static method]: unit -> WoofWare.Expect.ExpectBuilder
 WoofWare.Expect.ExpectBuilder inherit obj
 WoofWare.Expect.ExpectBuilder..ctor [constructor]: (string * int)
 WoofWare.Expect.ExpectBuilder..ctor [constructor]: bool

@@ -201,8 +201,10 @@ type ExpectBuilder (mode : Mode) =
                     |> raise
                 | Mode.Update ->
                     let lines = File.ReadAllLines source.FilePath
+                    let oldContents = String.concat "\n" lines
                     let lines = SnapshotUpdate.updateSnapshotAtLine lines source.LineNumber actual
                     File.WriteAllLines (source.FilePath, lines)
+                    failwith ("Snapshot successfully updated. Previous contents:\n" + oldContents)
 
             match snapshot with
             | SnapshotValue.Json snapshot ->
@@ -213,12 +215,24 @@ type ExpectBuilder (mode : Mode) =
 
                 if not (JsonElement.DeepEquals (canonicalActual.RootElement, canonicalSnapshot.RootElement)) then
                     raiseError (canonicalSnapshot.RootElement.ToString ()) (canonicalActual.RootElement.ToString ())
+                else
+                    match mode with
+                    | Mode.Update ->
+                        failwith
+                            "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a snapshot."
+                    | _ -> ()
 
             | SnapshotValue.BareString snapshot ->
                 let actual = actual.ToString ()
 
                 if actual <> snapshot then
                     raiseError snapshot actual
+                else
+                    match mode with
+                    | Mode.Update ->
+                        failwith
+                            "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a snapshot."
+                    | _ -> ()
 
         | None, _ -> failwith "Must specify snapshot"
         | _, None -> failwith "Must specify actual value with 'return'"
@@ -241,6 +255,31 @@ module Builder =
     /// (That example expectation will fail, because the actual value 124 does not snapshot to the expected snapshot "123".)
     /// </remarks>
     let expect = ExpectBuilder false
+
+    /// <summary>The WoofWare.Expect builder, but in "replace snapshot on failure" mode.</summary>
+    ///
+    /// <remarks>
+    /// Take an existing failing snapshot test:
+    ///
+    /// <code>
+    /// expect {
+    ///     snapshot "123"
+    ///     return 124
+    /// }
+    /// </code>
+    ///
+    /// Add the <c>'</c> marker to the <c>expect</c> builder:
+    /// <code>
+    /// expect' {
+    ///     snapshot "123"
+    ///     return 124
+    /// }
+    /// </code>
+    ///
+    /// Rerun, and observe that the snapshot becomes updated.
+    /// This rerun will throw an exception, to help make sure you don't commit the snapshot builder while it's flipped to "update" mode.
+    /// </remarks>
+    let expect' = ExpectBuilder true
 
     /// <summary>
     /// This is the `expect` builder, but it mocks out the filepath reported on failure.
