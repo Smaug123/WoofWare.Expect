@@ -38,4 +38,9 @@
       <ProjectReference Include="..\WoofWare.Expect\WoofWare.Expect.fsproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Include="TestSnapshotFinding\TestUnicodeCharacters.fs" />
+      <Compile Include="TestSnapshotFinding\TestMultilineComplex.fs" />
+    </ItemGroup>
+
 </Project>

@@ -79,7 +79,6 @@ Sixth line"
 
     let windowsLineEndings () =
         expect {
-            // This would have \r\n in a real Windows file
             snapshot "Line 1\r\nLine 2\r\nLine 3"
             return "crlf"
         }
