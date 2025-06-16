@@ -14,6 +14,13 @@
       <Compile Include="BulkUpdateExample.fs" />
       <Compile Include="SimpleTest.fs" />
       <Compile Include="TestSurface.fs" />
+      <Compile Include="TestSnapshotFinding\TestSnapshotFinding.fs" />
+      <Compile Include="TestSnapshotFinding\TestUnicodeCharacters.fs" />
+      <Compile Include="TestSnapshotFinding\TestMultilineComplex.fs" />
+      <Compile Include="TestSnapshotFinding\TestEdgeCases.fs" />
+      <Compile Include="TestSnapshotFinding\TestCommentsAndSpacing.fs" />
+      <Compile Include="TestSnapshotFinding\TestRegexMetacharacters.fs" />
+
       <EmbeddedResource Include="SyntaxCases\AtStringOneLine.fs" />
       <EmbeddedResource Include="SyntaxCases\SingleQuoteManyLine.fs" />
       <EmbeddedResource Include="SyntaxCases\TripleQuoteInterveningComment.fs" />
@@ -35,15 +42,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\WoofWare.Expect\WoofWare.Expect.fsproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Include="TestSnapshotFinding\TestSnapshotFinding.fs" />
-      <Compile Include="TestSnapshotFinding\TestUnicodeCharacters.fs" />
-      <Compile Include="TestSnapshotFinding\TestMultilineComplex.fs" />
-      <Compile Include="TestSnapshotFinding\TestEdgeCases.fs" />
-      <Compile Include="TestSnapshotFinding\TestCommentsAndSpacing.fs" />
-      <Compile Include="TestSnapshotFinding\TestRegexMetacharacters.fs" />
     </ItemGroup>
 
 </Project>
