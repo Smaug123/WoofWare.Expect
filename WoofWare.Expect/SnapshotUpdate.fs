@@ -141,7 +141,7 @@ module internal SnapshotUpdate =
         else
             // We need to include enough lines to capture multi-line strings
             // Take a reasonable number of lines after the snapshot line
-            let maxLines = min 50 (lines.Length - startIdx)
+            let maxLines = lines.Length - startIdx
             let relevantLines = lines |> Array.skip startIdx |> Array.take maxLines
 
             let searchText = String.concat "\n" relevantLines

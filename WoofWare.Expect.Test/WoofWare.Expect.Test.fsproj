@@ -13,12 +13,23 @@
       <Compile Include="Assembly.fs" />
       <Compile Include="BulkUpdateExample.fs" />
       <Compile Include="SimpleTest.fs" />
-      <Compile Include="TestSnapshotFinding.fs" />
       <Compile Include="TestSurface.fs" />
+      <Compile Include="TestSnapshotFinding\TestSnapshotFinding.fs" />
+      <Compile Include="TestSnapshotFinding\TestUnicodeCharacters.fs" />
+      <Compile Include="TestSnapshotFinding\TestMultilineComplex.fs" />
+      <Compile Include="TestSnapshotFinding\TestEdgeCases.fs" />
+      <Compile Include="TestSnapshotFinding\TestCommentsAndSpacing.fs" />
+      <Compile Include="TestSnapshotFinding\TestRegexMetacharacters.fs" />
+
       <EmbeddedResource Include="SyntaxCases\AtStringOneLine.fs" />
       <EmbeddedResource Include="SyntaxCases\SingleQuoteManyLine.fs" />
       <EmbeddedResource Include="SyntaxCases\TripleQuoteInterveningComment.fs" />
       <EmbeddedResource Include="SyntaxCases\TripleQuoteOneLine.fs" />
+      <EmbeddedResource Include="SyntaxCases\RegexMetacharacters.fs" />
+      <EmbeddedResource Include="SyntaxCases\UnicodeCharacters.fs" />
+      <EmbeddedResource Include="SyntaxCases\MultilineComplex.fs" />
+      <EmbeddedResource Include="SyntaxCases\EdgeCases.fs" />
+      <EmbeddedResource Include="SyntaxCases\CommentsAndSpacing.fs" />
     </ItemGroup>
 
     <ItemGroup>

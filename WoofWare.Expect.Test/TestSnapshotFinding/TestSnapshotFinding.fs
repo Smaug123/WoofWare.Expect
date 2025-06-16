@@ -4,7 +4,16 @@ open WoofWare.Expect
 open NUnit.Framework
 
 [<TestFixture>]
+[<Parallelizable(ParallelScope.Children)>]
 module TestSnapshotFinding =
+    [<OneTimeSetUp>]
+    let ``Prepare to bulk-update tests`` () =
+        // GlobalBuilderConfig.enterBulkUpdateMode ()
+        ()
+
+    [<OneTimeTearDown>]
+    let ``Update all tests`` () =
+        GlobalBuilderConfig.updateAllSnapshots ()
 
     type Dummy = class end
 
