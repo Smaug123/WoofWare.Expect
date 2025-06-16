@@ -80,7 +80,7 @@ module internal SnapshotUpdate =
                     | 't' -> "\t"
                     | '\\' -> "\\"
                     | '"' -> "\""
-                    | c -> string c
+                    | c -> string<char> c
 
                 loop (pos + 1) (content + unescaped) false
             elif text.[pos] = '\\' then
@@ -88,7 +88,7 @@ module internal SnapshotUpdate =
             elif text.[pos] = '"' then
                 Some (content, pos + 1)
             else
-                loop (pos + 1) (content + string text.[pos]) false
+                loop (pos + 1) (content + string<char> text.[pos]) false
 
         loop (startPos + 1) "" false
 
@@ -104,7 +104,7 @@ module internal SnapshotUpdate =
                 // End of string
                 Some (content, pos + 1)
             else
-                loop (pos + 1) (content + string text.[pos])
+                loop (pos + 1) (content + string<char> text.[pos])
 
         // Skip the @" prefix
         loop (startPos + 2) ""
@@ -121,7 +121,7 @@ module internal SnapshotUpdate =
             None
         else
             let contentStart = startPos + 3
-            let closePos = text.IndexOf ("\"\"\"", contentStart)
+            let closePos = text.IndexOf ("\"\"\"", contentStart, StringComparison.Ordinal)
 
             if closePos = -1 then
                 None
