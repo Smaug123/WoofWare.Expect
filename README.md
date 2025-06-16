@@ -46,6 +46,56 @@ let ``This test fails: plain text comparison of ToString`` () =
     }
 ```
 
+You can adjust the formatting:
+
+```fsharp
+[<Test>]
+let ``Overriding the formatting`` () =
+    expect {
+        // doesn't matter which order these two lines are in
+        withFormat (fun x -> x.GetType().Name)
+        snapshot @"Int32"
+        return 123
+    }
+```
+
+You can override the JSON serialisation if you find the snapshot format displeasing:
+
+```fsharp
+[<Test>]
+let ``Override JSON serialisation`` () =
+    expect {
+        snapshotJson "<excerpted>"
+
+        withJsonSerializerOptions (
+            let options = JsonFSharpOptions.ThothLike().ToJsonSerializerOptions ()
+            options.WriteIndented <- true
+            options
+        )
+
+        return myComplexAlgebraicDataType
+    }
+```
+
+You can adjust the JSON snapshot parsing if you like, e.g. if you want to add comments to your snapshot text:
+
+```fsharp
+[<Test>]
+let ``Overriding JSON parse`` () =
+    expect {
+        // Without a custom JsonDocumentOptions, WoofWare.Expect would fail to parse this as JSON
+        // and would unconditionally declare that the snapshot did not match:
+        snapshotJson @"{
+            // a key here
+            ""a"":3
+        }"
+
+        // But you can override the JsonDocumentOptions to state that comments are fine:
+        withJsonDocOptions (JsonDocumentOptions (CommentHandling = JsonCommentHandling.Skip))
+        return Map.ofList [ "a", 3 ]
+    }
+```
+
 ## Updating an individual snapshot
 
 If a snapshot is failing, add a `'` to the `expect` builder and rerun.

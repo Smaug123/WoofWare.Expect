@@ -1,6 +1,8 @@
 namespace WoofWare.Expect.Test
 
+open System.Collections.Generic
 open System.Text.Json
+open System.Text.Json.Serialization
 open WoofWare.Expect
 open NUnit.Framework
 
@@ -100,4 +102,67 @@ actual was:
 
             withJsonDocOptions (JsonDocumentOptions (CommentHandling = JsonCommentHandling.Skip))
             return Map.ofList [ "a", 3 ]
+        }
+
+    type SomeDu =
+        | Something of IReadOnlyDictionary<string, string>
+        | SomethingElse of string
+
+    type MoreComplexType =
+        {
+            Thing : int
+            SomeDu : SomeDu option
+        }
+
+    [<Test>]
+    let ``JSON snapshot of complex ADT`` () =
+        expect {
+            snapshotJson
+                @"{
+  ""SomeDu"": {
+    ""Case"": ""Something"",
+    ""Fields"": [
+      {
+        ""hi"": ""bye""
+      }
+    ]
+  },
+  ""Thing"": 3,
+}"
+
+            return
+                {
+                    Thing = 3
+                    SomeDu = Some (SomeDu.Something (Map.ofList [ "hi", "bye" ]))
+                }
+        }
+
+    [<Test>]
+    let ``Overriding the JSON format`` () =
+        expect {
+            snapshotJson
+                @"{
+  ""Thing"": 3,
+  ""SomeDu"": [
+    ""Some"",
+    [
+      ""Something"",
+      {
+        ""hi"": ""bye""
+      }
+    ]
+  ]
+}"
+
+            withJsonSerializerOptions (
+                let options = JsonFSharpOptions.ThothLike().ToJsonSerializerOptions ()
+                options.WriteIndented <- true
+                options
+            )
+
+            return
+                {
+                    Thing = 3
+                    SomeDu = Some (SomeDu.Something (Map.ofList [ "hi", "bye" ]))
+                }
         }
