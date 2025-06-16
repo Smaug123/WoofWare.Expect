@@ -121,7 +121,7 @@ module BulkUpdateExample =
         }
 ```
 
-Observe the `OneTimeSetUp` which sets global state to enter "bulk update" mode, and the `OneTimeTearDown` which performs all the failures which were accumulated during this test run.
+Observe the `OneTimeSetUp` which sets global state to enter "bulk update" mode, and the `OneTimeTearDown` which performs all the updates to rectify failures which were accumulated during this test run.
 
 # Limitations
 
