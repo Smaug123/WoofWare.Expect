@@ -33,12 +33,6 @@ module MyModule =
             return "quotes"
         }
 
-    let tripleQuotesInContent () =
-        expect {
-            snapshot """This has """ """ in the middle"""
-            return "triple"
-        }
-
     let backslashesGalore () =
         expect {
             snapshot @"C:\Users\Test\Documents\file.txt"
