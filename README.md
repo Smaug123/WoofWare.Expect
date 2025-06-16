@@ -82,7 +82,8 @@ let ``Example of automatically updating`` () =
 
 ## Bulk update of snapshots
 
-*Warning*: when doing this, you should probably make sure your test fixture is `[<NonParallelizable>]` (or the equivalent in your test runner of choice).
+*Warning*: when doing this, you should probably make sure your test fixture is `[<Parallelizable(ParallelScope.Children)>]` or less parallelizable,
+or the equivalent in your test runner of choice.
 Otherwise, the global state used by this mechanism may interfere with other fixtures.
 
 You can put WoofWare.Expect into "bulk update" mode as follows:

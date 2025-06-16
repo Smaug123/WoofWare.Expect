@@ -30,10 +30,11 @@ module GlobalBuilderConfig =
     /// You probably don't need to do this, because your test runner is probably tearing down
     /// anyway after the tests have failed; this is mainly here for WoofWare.Expect's own internal testing.
     /// </remarks>
-    let clearTests () = allTests.Clear ()
+    let clearTests () = lock allTests allTests.Clear
 
     let internal registerTest (s : CompletedSnapshotGeneric<'T>) : unit =
-        s |> CompletedSnapshot.make |> allTests.Add
+        let toAdd = s |> CompletedSnapshot.make
+        lock allTests (fun () -> allTests.Add toAdd)
 
     /// <summary>
     /// For all tests whose failures have already been registered,
@@ -44,6 +45,7 @@ module GlobalBuilderConfig =
 
         try
             if bulkUpdate' = 0 then
+                let allTests = lock allTests (fun () -> Seq.toArray allTests)
                 SnapshotUpdate.updateAll allTests
 
         finally

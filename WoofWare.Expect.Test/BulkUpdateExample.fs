@@ -4,7 +4,7 @@ open WoofWare.Expect
 open NUnit.Framework
 
 [<TestFixture>]
-[<NonParallelizable>]
+[<Parallelizable(ParallelScope.Children)>]
 module BulkUpdateExample =
 
     [<OneTimeSetUp>]
@@ -16,7 +16,8 @@ module BulkUpdateExample =
         //
         // When in bulk update mode, all tests will fail, to remind you to exit bulk update mode afterwards.
         //
-        // We *strongly* recommend making these test fixtures `[<NonParallelizable>]`.
+        // We *strongly* recommend making these test fixtures `[<Parallelizable(ParallelScope.Children)>]`
+        // or less parallelisable.
 
         // GlobalBuilderConfig.enterBulkUpdateMode ()
         ()
