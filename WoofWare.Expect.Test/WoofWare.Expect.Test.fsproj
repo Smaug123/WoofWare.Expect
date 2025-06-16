@@ -38,10 +38,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Include="TestSnapshotFinding\TestSnapshotFinding.fs" />
       <Compile Include="TestSnapshotFinding\TestUnicodeCharacters.fs" />
       <Compile Include="TestSnapshotFinding\TestMultilineComplex.fs" />
       <Compile Include="TestSnapshotFinding\TestEdgeCases.fs" />
-      <Compile Include="TestSnapshotFinding\TestSnapshotFinding.fs" />
+      <Compile Include="TestSnapshotFinding\TestCommentsAndSpacing.fs" />
     </ItemGroup>
 
 </Project>
