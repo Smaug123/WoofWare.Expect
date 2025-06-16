@@ -1,6 +1,5 @@
-﻿namespace WoofWare.Expect.Test
+namespace WoofWare.Expect.Test
 
-open System
 open WoofWare.Expect
 open NUnit.Framework
 
@@ -9,7 +8,7 @@ module SimpleTest =
     [<Test>]
     let ``JSON is resilient to whitespace changes`` () =
         expect {
-            snapshotJson "123  "
+            snapshotJson " 123 "
             return 123
         }
 
@@ -17,7 +16,7 @@ module SimpleTest =
     let ``Example of a failing test`` () =
         expect {
             snapshot
-                "snapshot mismatch! snapshot at filepath.fs:99 (Example of a failing test) was:
+                @"snapshot mismatch! snapshot at filepath.fs:99 (Example of a failing test) was:
 
 - 123
 
@@ -39,6 +38,6 @@ actual was:
     [<Test>]
     let ``Basic example`` () =
         expect {
-            snapshot "123"
+            snapshot @"123"
             return 123
         }

@@ -30,6 +30,11 @@
     "hash": "sha256-zZEhjP0mdc5E3fBPS4/lqD7sxoaoT5SOspP546RWYdc="
   },
   {
+    "pname": "FsUnit",
+    "version": "7.0.1",
+    "hash": "sha256-K85CIdxMeFSHEKZk6heIXp/oFjWAn7dBILKrw49pJUY="
+  },
+  {
     "pname": "Microsoft.ApplicationInsights",
     "version": "2.22.0",
     "hash": "sha256-mUQ63atpT00r49ca50uZu2YCiLg3yd6r3HzTryqcuEA="

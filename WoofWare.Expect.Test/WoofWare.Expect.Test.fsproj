@@ -7,12 +7,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="SimpleTest.fs" />
-        <Compile Include="TestSurface.fs" />
+      <Compile Include="Assembly.fs" />
+      <Compile Include="SimpleTest.fs" />
+      <Compile Include="TestSnapshotFinding.fs" />
+      <Compile Include="TestSurface.fs" />
+      <EmbeddedResource Include="SyntaxCases\AtStringOneLine.fs" />
+      <EmbeddedResource Include="SyntaxCases\SingleQuoteManyLine.fs" />
+      <EmbeddedResource Include="SyntaxCases\TripleQuoteInterveningComment.fs" />
+      <EmbeddedResource Include="SyntaxCases\TripleQuoteOneLine.fs" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="ApiSurface" Version="4.1.20" />
+        <PackageReference Include="FsUnit" Version="7.0.1" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
         <PackageReference Include="NUnit" Version="4.3.2"/>
         <PackageReference Include="NUnit3TestAdapter" Version="5.0.0"/>

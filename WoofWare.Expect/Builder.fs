@@ -1,5 +1,6 @@
 ﻿namespace WoofWare.Expect
 
+open System.IO
 open System.Runtime.CompilerServices
 open System.Text.Json
 open System.Text.Json.Serialization
@@ -35,12 +36,33 @@ module private Text =
     let predent (c : char) (s : string) =
         s.Split '\n' |> Seq.map (sprintf "%c %s" c) |> String.concat "\n"
 
+/// <summary>Specify how the Expect computation expression treats failures.</summary>
+/// <remarks>You probably don't want to use this directly; use the computation expression definitions
+/// like <c>expect</c> in the <c>Builder</c> module instead.</remarks>
+type Mode =
+    private
+    | Assert
+    | Update
+    | AssertMockingSource of (string * int)
+
 /// <summary>
 /// The builder which powers WoofWare.Expect.
 /// </summary>
 /// <remarks>You're not expected to construct this explicitly; it's a computation expression, available as <c>Builder.expect</c>.</remarks>
+/// <param name="applyChanges">When running the tests, instead of throwing an exception on failure, update the snapshot.</param>
 /// <param name="sourceOverride">Override the file path and line numbers reported in snapshots, so that your tests can be fully stable even on failure. (You almost certainly don't want to set this.)</param>
-type ExpectBuilder (?sourceOverride : string * int) =
+type ExpectBuilder (mode : Mode) =
+    member private this.Mode = Unchecked.defaultof<Mode>
+
+    new (sourceOverride : string * int) = ExpectBuilder (Mode.AssertMockingSource sourceOverride)
+
+    new (update : bool)
+        =
+        if update then
+            ExpectBuilder Mode.Update
+        else
+            ExpectBuilder Mode.Assert
+
     /// Combine two `ExpectState`s. The first one is the "expected" snapshot; the second is the "actual".
     member _.Bind
         (state : ExpectState<YouHaveSuppliedMultipleSnapshots>, f : unit -> ExpectState<'U>)
@@ -155,6 +177,35 @@ type ExpectBuilder (?sourceOverride : string * int) =
 
         match state.Snapshot, state.Actual with
         | Some (snapshot, source), Some actual ->
+            let raiseError (snapshot : string) (actual : string) : unit =
+                match mode with
+                | Mode.AssertMockingSource (mockSource, line) ->
+                    sprintf
+                        "snapshot mismatch! snapshot at %s:%i (%s) was:\n\n%s\n\nactual was:\n\n%s"
+                        mockSource
+                        line
+                        source.MemberName
+                        (snapshot |> Text.predent '-')
+                        (actual |> Text.predent '+')
+                    |> ExpectException
+                    |> raise
+                | Mode.Assert ->
+                    sprintf
+                        "snapshot mismatch! snapshot at %s:%i (%s) was:\n\n%s\n\nactual was:\n\n%s"
+                        source.FilePath
+                        source.LineNumber
+                        source.MemberName
+                        (snapshot |> Text.predent '-')
+                        (actual |> Text.predent '+')
+                    |> ExpectException
+                    |> raise
+                | Mode.Update ->
+                    let lines = File.ReadAllLines source.FilePath
+                    let oldContents = String.concat "\n" lines
+                    let lines = SnapshotUpdate.updateSnapshotAtLine lines source.LineNumber actual
+                    File.WriteAllLines (source.FilePath, lines)
+                    failwith ("Snapshot successfully updated. Previous contents:\n" + oldContents)
+
             match snapshot with
             | SnapshotValue.Json snapshot ->
                 let canonicalSnapshot = JsonDocument.Parse snapshot
@@ -163,29 +214,25 @@ type ExpectBuilder (?sourceOverride : string * int) =
                     JsonSerializer.Serialize (actual, options) |> JsonDocument.Parse
 
                 if not (JsonElement.DeepEquals (canonicalActual.RootElement, canonicalSnapshot.RootElement)) then
-                    sprintf
-                        "snapshot mismatch! snapshot at %s:%i (%s) was:\n\n%s\n\nactual was:\n\n%s"
-                        (sourceOverride |> Option.map fst |> Option.defaultValue source.FilePath)
-                        (sourceOverride |> Option.map snd |> Option.defaultValue source.LineNumber)
-                        source.MemberName
-                        (canonicalSnapshot.RootElement.ToString () |> Text.predent '-')
-                        (canonicalActual.RootElement.ToString () |> Text.predent '-')
-                    |> ExpectException
-                    |> raise
+                    raiseError (canonicalSnapshot.RootElement.ToString ()) (canonicalActual.RootElement.ToString ())
+                else
+                    match mode with
+                    | Mode.Update ->
+                        failwith
+                            "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a snapshot."
+                    | _ -> ()
 
             | SnapshotValue.BareString snapshot ->
                 let actual = actual.ToString ()
 
                 if actual <> snapshot then
-                    sprintf
-                        "snapshot mismatch! snapshot at %s:%i (%s) was:\n\n%s\n\nactual was:\n\n%s"
-                        (sourceOverride |> Option.map fst |> Option.defaultValue source.FilePath)
-                        (sourceOverride |> Option.map snd |> Option.defaultValue source.LineNumber)
-                        source.MemberName
-                        (snapshot |> Text.predent '-')
-                        (actual |> Text.predent '+')
-                    |> ExpectException
-                    |> raise
+                    raiseError snapshot actual
+                else
+                    match mode with
+                    | Mode.Update ->
+                        failwith
+                            "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a snapshot."
+                    | _ -> ()
 
         | None, _ -> failwith "Must specify snapshot"
         | _, None -> failwith "Must specify actual value with 'return'"
@@ -207,7 +254,32 @@ module Builder =
     ///
     /// (That example expectation will fail, because the actual value 124 does not snapshot to the expected snapshot "123".)
     /// </remarks>
-    let expect = ExpectBuilder ()
+    let expect = ExpectBuilder false
+
+    /// <summary>The WoofWare.Expect builder, but in "replace snapshot on failure" mode.</summary>
+    ///
+    /// <remarks>
+    /// Take an existing failing snapshot test:
+    ///
+    /// <code>
+    /// expect {
+    ///     snapshot "123"
+    ///     return 124
+    /// }
+    /// </code>
+    ///
+    /// Add the <c>'</c> marker to the <c>expect</c> builder:
+    /// <code>
+    /// expect' {
+    ///     snapshot "123"
+    ///     return 124
+    /// }
+    /// </code>
+    ///
+    /// Rerun, and observe that the snapshot becomes updated.
+    /// This rerun will throw an exception, to help make sure you don't commit the snapshot builder while it's flipped to "update" mode.
+    /// </remarks>
+    let expect' = ExpectBuilder true
 
     /// <summary>
     /// This is the `expect` builder, but it mocks out the filepath reported on failure.
