@@ -207,7 +207,7 @@ jobs:
       - name: Download NuGet artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
+          name: nuget-package
       - name: Compute package path
         id: compute-path
         run: |
