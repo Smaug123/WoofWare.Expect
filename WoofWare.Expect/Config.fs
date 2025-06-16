@@ -12,7 +12,7 @@ module GlobalBuilderConfig =
     /// Call this to make the <c>expect</c> builder register all tests for bulk update as it runs.
     /// </summary>
     /// <remarks>
-    /// We *strongly* recommend making test fixtures <c>NonParallelizable</c> (for NUnit) if you're running in bulk update mode.
+    /// We *strongly* recommend making test fixtures <c>Parallelizable(ParallelScope.Children)</c> or less parallelizable (for NUnit) if you're running in bulk update mode.
     /// The implied global mutable state is liable to interfere with other expect builders in other fixtures otherwise.
     /// </remarks>
     let enterBulkUpdateMode () =
