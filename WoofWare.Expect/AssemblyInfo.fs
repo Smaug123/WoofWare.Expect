@@ -1,4 +1,4 @@
-module WoofWare.Expect.AssemblyInfo
+module internal WoofWare.Expect.AssemblyInfo
 
 open System.Runtime.CompilerServices
 
