@@ -15,6 +15,9 @@ type private SnapshotValue =
     | BareString of string
     | Json of string
 
+/// An exception indicating that a value failed to match its snapshot.
+exception ExpectException of Message : string
+
 /// A dummy type which is here to provide better error messages when you supply
 /// the `snapshot` keyword multiple times.
 type YouHaveSuppliedMultipleSnapshots = private | NonConstructible
@@ -160,25 +163,29 @@ type ExpectBuilder (?sourceOverride : string * int) =
                     JsonSerializer.Serialize (actual, options) |> JsonDocument.Parse
 
                 if not (JsonElement.DeepEquals (canonicalActual.RootElement, canonicalSnapshot.RootElement)) then
-                    failwithf
+                    sprintf
                         "snapshot mismatch! snapshot at %s:%i (%s) was:\n\n%s\n\nactual was:\n\n%s"
                         (sourceOverride |> Option.map fst |> Option.defaultValue source.FilePath)
                         (sourceOverride |> Option.map snd |> Option.defaultValue source.LineNumber)
                         source.MemberName
                         (canonicalSnapshot.RootElement.ToString () |> Text.predent '-')
                         (canonicalActual.RootElement.ToString () |> Text.predent '-')
+                    |> ExpectException
+                    |> raise
 
             | SnapshotValue.BareString snapshot ->
                 let actual = actual.ToString ()
 
                 if actual <> snapshot then
-                    failwithf
+                    sprintf
                         "snapshot mismatch! snapshot at %s:%i (%s) was:\n\n%s\n\nactual was:\n\n%s"
                         (sourceOverride |> Option.map fst |> Option.defaultValue source.FilePath)
                         (sourceOverride |> Option.map snd |> Option.defaultValue source.LineNumber)
                         source.MemberName
                         (snapshot |> Text.predent '-')
                         (actual |> Text.predent '+')
+                    |> ExpectException
+                    |> raise
 
         | None, _ -> failwith "Must specify snapshot"
         | _, None -> failwith "Must specify actual value with 'return'"
