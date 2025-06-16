@@ -138,6 +138,14 @@ actual was:
         }
 
     [<Test>]
+    let ``Overriding JSON format, from docstring`` () =
+        expect {
+            snapshotJson @"{""a"":3}"
+            withJsonSerializerOptions (JsonSerializerOptions (WriteIndented = false))
+            return Map.ofList [ "a", 3 ]
+        }
+
+    [<Test>]
     let ``Overriding the JSON format`` () =
         expect {
             snapshotJson

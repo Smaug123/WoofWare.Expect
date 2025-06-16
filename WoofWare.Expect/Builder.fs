@@ -162,12 +162,19 @@ type ExpectBuilder (mode : Mode) =
             }
 
     /// <summary>
-    /// Express that the <c>return</c> value of this builder should be formatted using this function, before
-    /// writing it out as a snapshot.
+    /// Express that these JsonSerializerOptions should be used to construct the JSON object to which the snapshot
+    /// is to be compared (or, in write-out-the-snapshot mode, to construct the JSON object to be written out).
     /// </summary>
-    /// <remarks>
-    /// This takes effect only when writing out the updated snapshot; it has no effect when merely performing a snapshot assertion.
-    /// </remarks>
+    /// <example>
+    /// If you want your snapshots to be written out compactly, rather than the default indenting:
+    /// <code>
+    /// expect {
+    ///     snapshotJson @"{""a"":3}"
+    ///     withJsonSerializerOptions (JsonSerializerOptions (WriteIndented = false))
+    ///     return Map.ofList ["a", 3]
+    /// }
+    /// </code>
+    /// </example>
     [<CustomOperation("withJsonSerializerOptions", MaintainsVariableSpaceUsingBind = true)>]
     member _.WithJsonSerializerOptions<'T> (state : ExpectState<'T>, jsonOptions : JsonSerializerOptions) =
         match state.JsonSerialiserOptions with
@@ -178,12 +185,26 @@ type ExpectBuilder (mode : Mode) =
             }
 
     /// <summary>
-    /// Express that the <c>return</c> value of this builder should be formatted using this function, before
-    /// writing it out as a snapshot.
+    /// Express that these JsonDocumentOptions should be used when parsing the snapshot string into a JSON object.
     /// </summary>
     /// <remarks>
-    /// This takes effect only when writing out the updated snapshot; it has no effect when merely performing a snapshot assertion.
+    /// For example, you might use this if you want your snapshot to contain comments;
+    /// the default JSON document parser will instead throw on comments, causing the snapshot instantly to fail to match.
     /// </remarks>
+    /// <example>
+    /// <code>
+    /// expect {
+    ///     snapshotJson
+    ///         @"{
+    ///         // a key here
+    ///         ""a"":3
+    ///     }"
+    ///
+    ///     withJsonDocOptions (JsonDocumentOptions (CommentHandling = JsonCommentHandling.Skip))
+    ///     return Map.ofList [ "a", 3 ]
+    /// }
+    /// </code>
+    /// </example>
     [<CustomOperation("withJsonDocOptions", MaintainsVariableSpaceUsingBind = true)>]
     member _.WithJsonDocOptions<'T> (state : ExpectState<'T>, jsonOptions : JsonDocumentOptions) =
         match state.JsonDocOptions with
