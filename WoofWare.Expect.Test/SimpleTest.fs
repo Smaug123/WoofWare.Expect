@@ -16,7 +16,7 @@ module SimpleTest =
     let ``Example of a failing test`` () =
         expect {
             snapshot
-                "snapshot mismatch! snapshot at filepath.fs:99 (Example of a failing test) was:
+                @"snapshot mismatch! snapshot at filepath.fs:99 (Example of a failing test) was:
 
 - 123
 
@@ -38,6 +38,6 @@ actual was:
     [<Test>]
     let ``Basic example`` () =
         expect {
-            snapshot "123"
+            snapshot @"123"
             return 123
         }

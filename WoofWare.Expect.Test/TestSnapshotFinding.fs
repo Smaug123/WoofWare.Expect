@@ -16,17 +16,17 @@ module TestSnapshotFinding =
 
         expect {
             snapshot
-                """namespace BigExample
+                @"namespace BigExample
 
 open WoofWare.Expect
 
 module MyModule =
     let foo () =
         expect {
-            snapshot @"replacement"
+            snapshot @""replacement""
             return 123
         }
-"""
+"
 
             return SnapshotUpdate.updateSnapshotAtLine source 8 "replacement" |> String.concat "\n"
         }
@@ -39,18 +39,18 @@ module MyModule =
 
         expect {
             snapshot
-                """namespace BigExample
+                @"namespace BigExample
 
 open WoofWare.Expect
 
 module MyModule =
     let foo () =
         expect {
-            snapshot @"replacement
-more"
+            snapshot @""replacement
+more""
             return 123
         }
-"""
+"
 
             return
                 SnapshotUpdate.updateSnapshotAtLine source 8 "replacement\nmore"
@@ -65,17 +65,17 @@ more"
 
         expect {
             snapshot
-                """namespace BigExample
+                @"namespace BigExample
 
 open WoofWare.Expect
 
 module MyModule =
     let foo () =
         expect {
-            snapshot @"replacement"
+            snapshot @""replacement""
             return 123
         }
-"""
+"
 
             return SnapshotUpdate.updateSnapshotAtLine source 8 "replacement" |> String.concat "\n"
         }
@@ -88,18 +88,18 @@ module MyModule =
 
         expect {
             snapshot
-                """namespace BigExample
+                @"namespace BigExample
 
 open WoofWare.Expect
 
 module MyModule =
     let foo () =
         expect {
-            snapshot @"replacement
-more"
+            snapshot @""replacement
+more""
             return 123
         }
-"""
+"
 
             return
                 SnapshotUpdate.updateSnapshotAtLine source 8 "replacement\nmore"
@@ -114,7 +114,7 @@ more"
 
         expect {
             snapshot
-                """namespace BigExample
+                @"namespace BigExample
 
 open WoofWare.Expect
 
@@ -122,11 +122,11 @@ module MyModule =
     let foo () =
         expect {
             snapshot (* comment *)
-                @"replacement"
+                @""replacement""
 
             return 123
         }
-"""
+"
 
             return SnapshotUpdate.updateSnapshotAtLine source 8 "replacement" |> String.concat "\n"
         }
