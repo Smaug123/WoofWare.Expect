@@ -43,6 +43,7 @@
       <Compile Include="TestSnapshotFinding\TestMultilineComplex.fs" />
       <Compile Include="TestSnapshotFinding\TestEdgeCases.fs" />
       <Compile Include="TestSnapshotFinding\TestCommentsAndSpacing.fs" />
+      <Compile Include="TestSnapshotFinding\TestRegexMetacharacters.fs" />
     </ItemGroup>
 
 </Project>
