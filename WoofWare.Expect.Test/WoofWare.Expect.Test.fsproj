@@ -13,6 +13,7 @@
       <Compile Include="Assembly.fs" />
       <Compile Include="BulkUpdateExample.fs" />
       <Compile Include="SimpleTest.fs" />
+      <Compile Include="TestDiff.fs" />
       <Compile Include="TestSurface.fs" />
       <Compile Include="TestSnapshotFinding\TestSnapshotFinding.fs" />
       <Compile Include="TestSnapshotFinding\TestUnicodeCharacters.fs" />

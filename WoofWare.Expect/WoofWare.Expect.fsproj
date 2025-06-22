@@ -19,6 +19,7 @@
         <Compile Include="AssemblyInfo.fs" />
         <Compile Include="Text.fs" />
         <Compile Include="File.fs" />
+        <Compile Include="Diff.fs" />
         <Compile Include="Domain.fs" />
         <Compile Include="SnapshotUpdate.fs" />
         <Compile Include="Config.fs" />
