@@ -242,26 +242,28 @@ type ExpectBuilder (mode : Mode) =
         let raiseError (snapshot : string) (actual : string) : unit =
             match mode with
             | Mode.AssertMockingSource (mockSource, line) ->
+                let diff = Diff.patience (snapshot.Split '\n') (actual.Split '\n')
+
                 sprintf
-                    "snapshot mismatch! snapshot at %s:%i (%s) was:\n\n%s\n\nactual was:\n\n%s"
+                    "snapshot mismatch! snapshot at %s:%i (%s) diff:\n\n%s"
                     mockSource
                     line
                     state.Caller.MemberName
-                    (snapshot |> Text.predent '-')
-                    (actual |> Text.predent '+')
+                    (Diff.format diff |> String.concat "\n")
                 |> ExpectException
                 |> raise
             | Mode.Assert ->
                 if GlobalBuilderConfig.isBulkUpdateMode () then
                     GlobalBuilderConfig.registerTest state
                 else
+                    let diff = Diff.patience (snapshot.Split '\n') (actual.Split '\n')
+
                     sprintf
-                        "snapshot mismatch! snapshot at %s:%i (%s) was:\n\n%s\n\nactual was:\n\n%s"
+                        "snapshot mismatch! snapshot at %s:%i (%s) diff:\n\n%s"
                         state.Caller.FilePath
                         state.Caller.LineNumber
                         state.Caller.MemberName
-                        (snapshot |> Text.predent '-')
-                        (actual |> Text.predent '+')
+                        (Diff.format diff |> String.concat "\n")
                     |> ExpectException
                     |> raise
             | Mode.Update ->
