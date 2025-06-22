@@ -300,5 +300,5 @@ module internal SnapshotUpdate =
 
             let newContents = updateAllLines contents sources
 
-            System.IO.File.WriteAllLines (callerFile, newContents)
+            File.writeAllLines newContents callerFile
         )

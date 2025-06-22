@@ -270,7 +270,7 @@ type ExpectBuilder (mode : Mode) =
                 let lines = File.ReadAllLines state.Caller.FilePath
                 let oldContents = String.concat "\n" lines
                 let lines = SnapshotUpdate.updateSnapshotAtLine lines state.Caller.LineNumber actual
-                File.WriteAllLines (state.Caller.FilePath, lines)
+                File.writeAllLines lines state.Caller.FilePath
                 failwith ("Snapshot successfully updated. Previous contents:\n" + oldContents)
 
         match CompletedSnapshotGeneric.passesAssertion state with
