@@ -23,8 +23,6 @@ type Mode =
 /// <param name="applyChanges">When running the tests, instead of throwing an exception on failure, update the snapshot.</param>
 /// <param name="sourceOverride">Override the file path and line numbers reported in snapshots, so that your tests can be fully stable even on failure. (You almost certainly don't want to set this.)</param>
 type ExpectBuilder (mode : Mode) =
-    member private this.Mode = Unchecked.defaultof<Mode>
-
     new (sourceOverride : string * int) = ExpectBuilder (Mode.AssertMockingSource sourceOverride)
 
     new (update : bool)
