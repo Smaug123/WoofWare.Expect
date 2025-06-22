@@ -254,7 +254,7 @@ type ExpectBuilder (mode : Mode) =
                 |> ExpectException
                 |> raise
             | Mode.Assert ->
-                if GlobalBuilderConfig.bulkUpdate.Value > 0 then
+                if GlobalBuilderConfig.isBulkUpdateMode () then
                     GlobalBuilderConfig.registerTest state
                 else
                     sprintf
@@ -275,9 +275,9 @@ type ExpectBuilder (mode : Mode) =
 
         match CompletedSnapshotGeneric.passesAssertion state with
         | None ->
-            match mode, GlobalBuilderConfig.bulkUpdate.Value with
+            match mode, GlobalBuilderConfig.isBulkUpdateMode () with
             | Mode.Update, _
-            | _, 1 ->
+            | _, true ->
                 failwith
                     "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a single snapshot; disable `GlobalBuilderConfig.bulkUpdate` to move back to assertion-checking mode."
             | _ -> ()
