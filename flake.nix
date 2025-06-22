@@ -65,6 +65,7 @@
           pkgs.alejandra
           pkgs.nodePackages.markdown-link-check
           pkgs.shellcheck
+          pkgs.xmlstarlet
         ];
       };
     });
