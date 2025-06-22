@@ -39,6 +39,6 @@ module TestDiff =
 +       4  Another line
     4   5  The end"
 
-            withFormat (Diff.formatDiff >> String.concat "\n")
+            withFormat (Diff.formatWithLineNumbers >> String.concat "\n")
             return diff
         }

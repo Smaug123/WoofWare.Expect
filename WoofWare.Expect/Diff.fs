@@ -90,7 +90,7 @@ let longestIncreasingSubsequence (matches : LineMatch array) : LineMatch list =
         reconstruct endIndex []
 
 /// Simple Myers diff implementation as fallback
-let rec myersDiff (a : string array) (b : string array) : DiffOperation list =
+let myersDiff (a : string array) (b : string array) : DiffOperation list =
     let rec diffHelper (i : int) (j : int) (acc : DiffOperation list) =
         match i < a.Length, j < b.Length with
         | false, false -> List.rev acc
@@ -98,12 +98,12 @@ let rec myersDiff (a : string array) (b : string array) : DiffOperation list =
             let deletes =
                 [ i .. a.Length - 1 ] |> List.map (fun idx -> Delete (Position idx, a.[idx]))
 
-            List.rev (deletes @ acc)
+            (List.rev acc) @ deletes
         | false, true ->
             let inserts =
                 [ j .. b.Length - 1 ] |> List.map (fun idx -> Insert (Position idx, b.[idx]))
 
-            List.rev (inserts @ acc)
+            (List.rev acc) @ inserts
         | true, true ->
             if a.[i] = b.[j] then
                 diffHelper (i + 1) (j + 1) (Match (Position i, Position j, a.[i]) :: acc)
@@ -127,7 +127,7 @@ let rec myersDiff (a : string array) (b : string array) : DiffOperation list =
                             ]
                         )
 
-                    diffHelper (i + k - 1) (j + k - 1) (ops @ acc)
+                    diffHelper (i + k - 1) (j + k - 1) (List.rev ops @ acc)
                 | _ ->
                     // No close match, just delete and insert
                     diffHelper (i + 1) j (Delete (Position i, a.[i]) :: acc)
@@ -170,62 +170,71 @@ let rec patience (a : string array) (b : string array) : DiffOperation list =
                 |> Array.sortBy (fun m -> m.PosA)
 
             // Find LIS
-            let anchorMatches = longestIncreasingSubsequence matches
+            let anchorMatches = longestIncreasingSubsequence matches |> List.toArray
 
-            // Build diff using anchors
-            let rec buildDiff (anchors : LineMatch list) (prevA : int) (prevB : int) (acc : DiffOperation list) =
-                match anchors with
-                | [] ->
-                    // Handle remaining elements
-                    let remainingOps =
-                        if prevA < a.Length || prevB < b.Length then
-                            patience a.[prevA..] b.[prevB..]
-                            |> List.map (fun op ->
-                                match op with
-                                | Match (Position pa, Position pb, line) ->
-                                    Match (Position (pa + prevA), Position (pb + prevB), line)
-                                | Delete (Position pa, line) -> Delete (Position (pa + prevA), line)
-                                | Insert (Position pb, line) -> Insert (Position (pb + prevB), line)
-                            )
-                        else
-                            []
+            // Build diff imperatively
+            let result = ResizeArray<DiffOperation> ()
+            let mutable prevA = 0
+            let mutable prevB = 0
 
-                    List.rev acc @ remainingOps
+            // Process each anchor
+            for anchor in anchorMatches do
+                let (Position anchorA) = anchor.PosA
+                let (Position anchorB) = anchor.PosB
 
-                | anchor :: rest ->
-                    let (Position anchorA) = anchor.PosA
-                    let (Position anchorB) = anchor.PosB
+                // Add diff for section before this anchor
+                if prevA < anchorA || prevB < anchorB then
+                    let sectionA = a.[prevA .. anchorA - 1]
+                    let sectionB = b.[prevB .. anchorB - 1]
+                    let sectionDiff = patience sectionA sectionB
 
-                    // Diff section before anchor
-                    let sectionOps =
-                        if prevA < anchorA || prevB < anchorB then
-                            patience a.[prevA .. anchorA - 1] b.[prevB .. anchorB - 1]
-                            |> List.map (fun op ->
-                                match op with
-                                | Match (Position pa, Position pb, line) ->
-                                    Match (Position (pa + prevA), Position (pb + prevB), line)
-                                | Delete (Position pa, line) -> Delete (Position (pa + prevA), line)
-                                | Insert (Position pb, line) -> Insert (Position (pb + prevB), line)
-                            )
-                        else
-                            []
+                    // Adjust positions and add to result
+                    for op in sectionDiff do
+                        match op with
+                        | Match (Position pa, Position pb, line) ->
+                            result.Add (Match (Position (pa + prevA), Position (pb + prevB), line))
+                        | Delete (Position pa, line) -> result.Add (Delete (Position (pa + prevA), line))
+                        | Insert (Position pb, line) -> result.Add (Insert (Position (pb + prevB), line))
 
-                    // Add anchor match
-                    let newAcc =
-                        Match (anchor.PosA, anchor.PosB, anchor.Line) :: (List.rev sectionOps @ acc)
+                // Add the anchor match
+                result.Add (Match (anchor.PosA, anchor.PosB, anchor.Line))
 
-                    buildDiff rest (anchorA + 1) (anchorB + 1) newAcc
+                // Update positions
+                prevA <- anchorA + 1
+                prevB <- anchorB + 1
 
-            buildDiff anchorMatches 0 0 []
+            // Handle remaining elements after last anchor
+            if prevA < a.Length || prevB < b.Length then
+                let remainingA = a.[prevA..]
+                let remainingB = b.[prevB..]
+                let remainingDiff = patience remainingA remainingB
+
+                for op in remainingDiff do
+                    match op with
+                    | Match (Position pa, Position pb, line) ->
+                        result.Add (Match (Position (pa + prevA), Position (pb + prevB), line))
+                    | Delete (Position pa, line) -> result.Add (Delete (Position (pa + prevA), line))
+                    | Insert (Position pb, line) -> result.Add (Insert (Position (pb + prevB), line))
+
+            result |> Seq.toList
 
 /// Format diff operations for display
-let formatDiff (ops : DiffOperation list) : string list =
+let formatWithLineNumbers (ops : DiffOperation list) : string list =
     ops
     |> List.map (fun op ->
         match op with
         | Match (Position a, Position b, line) -> sprintf "  %3d %3d  %s" a b line
         | Delete (Position a, line) -> sprintf "- %3d      %s" a line
         | Insert (Position b, line) -> sprintf "+     %3d  %s" b line
+    )
+
+let format (ops : DiffOperation list) : string list =
+    ops
+    |> List.map (fun op ->
+        match op with
+        | Match (Position _, Position _, line) -> sprintf "  %s" line
+        | Delete (Position _, line) -> sprintf "- %s" line
+        | Insert (Position _, line) -> sprintf "+ %s" line
     )
 
 /// Compute diff statistics
