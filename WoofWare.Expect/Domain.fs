@@ -17,20 +17,21 @@ type CallerInfo =
 type private SnapshotValue =
     | Json of expected : string
     | Formatted of expected : string
+    | ThrowsException of expected : string
 
 type private CompletedSnapshotValue<'T> =
     | Json of expected : string * JsonSerializerOptions * JsonDocumentOptions
-    | Formatted of expected : string * format : ('T -> string)
+    | Formatted of expected : string * format : ((unit -> 'T) -> string)
 
 /// The state accumulated by the `expect` builder. You should never find yourself interacting with this type.
 type ExpectState<'T> =
     private
         {
-            Formatter : ('T -> string) option
+            Formatter : ((unit -> 'T) -> string) option
             JsonSerialiserOptions : JsonSerializerOptions option
             JsonDocOptions : JsonDocumentOptions option
             Snapshot : (SnapshotValue * CallerInfo) option
-            Actual : 'T option
+            Actual : (unit -> 'T) option
         }
 
 /// The state accumulated by the `expect` builder. You should never find yourself interacting with this type.
@@ -39,7 +40,7 @@ type internal CompletedSnapshotGeneric<'T> =
         {
             SnapshotValue : CompletedSnapshotValue<'T>
             Caller : CallerInfo
-            Actual : 'T
+            Actual : unit -> 'T
         }
 
 [<RequireQualifiedAccess>]
@@ -68,10 +69,21 @@ module internal CompletedSnapshotGeneric =
                 | SnapshotValue.Formatted expected ->
                     let formatter =
                         match state.Formatter with
-                        | None -> fun x -> x.ToString ()
+                        | None -> fun x -> x().ToString ()
                         | Some f -> f
 
                     CompletedSnapshotValue.Formatted (expected, formatter)
+
+                | SnapshotValue.ThrowsException expected ->
+                    CompletedSnapshotValue.Formatted (
+                        expected,
+                        fun x ->
+                            try
+                                x () |> ignore
+                                "<no exception raised>"
+                            with e ->
+                                e.GetType().FullName + ": " + e.Message
+                    )
 
             {
                 SnapshotValue = snapshot

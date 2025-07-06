@@ -143,6 +143,51 @@ type ExpectBuilder (mode : Mode) =
             }
 
     /// <summary>
+    /// Expresses that the given expression throws during evaluation.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// expect {
+    ///     snapshotThrows @"System.Exception: oh no"
+    ///     return! (fun () -> failwith "oh no")
+    /// }
+    /// </code>
+    /// </example>
+    [<CustomOperation("snapshotThrows", MaintainsVariableSpaceUsingBind = true)>]
+    member _.SnapshotThrows<'a>
+        (
+            state : ExpectState<'a>,
+            snapshot : string,
+            [<CallerMemberName>] ?memberName : string,
+            [<CallerLineNumber>] ?callerLine : int,
+            [<CallerFilePath>] ?filePath : string
+        )
+        : ExpectState<'a>
+        =
+        match state.Snapshot with
+        | Some _ -> failwith "snapshot can only be specified once"
+        | None ->
+
+            let memberName = defaultArg memberName "<unknown method>"
+            let filePath = defaultArg filePath "<unknown file>"
+            let lineNumber = defaultArg callerLine -1
+
+            let callerInfo =
+                {
+                    MemberName = memberName
+                    FilePath = filePath
+                    LineNumber = lineNumber
+                }
+
+            {
+                Formatter = None
+                JsonSerialiserOptions = state.JsonSerialiserOptions
+                JsonDocOptions = state.JsonDocOptions
+                Snapshot = Some (SnapshotValue.ThrowsException snapshot, callerInfo)
+                Actual = None
+            }
+
+    /// <summary>
     /// Express that the <c>return</c> value of this builder should be formatted using this function, before
     /// comparing to the snapshot.
     /// this value.
@@ -156,7 +201,7 @@ type ExpectBuilder (mode : Mode) =
         | Some _ -> failwith "Please don't supply withFormat more than once"
         | None ->
             { state with
-                Formatter = Some formatter
+                Formatter = Some (fun f -> f () |> formatter)
             }
 
     /// <summary>
@@ -224,6 +269,15 @@ type ExpectBuilder (mode : Mode) =
 
     /// Expresses the "actual value" component of the assertion "expected snapshot = actual value".
     member _.Return (value : 'T) : ExpectState<'T> =
+        {
+            Snapshot = None
+            Formatter = None
+            JsonDocOptions = None
+            JsonSerialiserOptions = None
+            Actual = Some (fun () -> value)
+        }
+
+    member _.ReturnFrom (value : unit -> 'T) : ExpectState<'T> =
         {
             Snapshot = None
             Formatter = None
