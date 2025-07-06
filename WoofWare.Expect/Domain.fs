@@ -96,7 +96,7 @@ module internal CompletedSnapshotGeneric =
     let internal replacement (s : CompletedSnapshotGeneric<'T>) =
         match s.SnapshotValue with
         | CompletedSnapshotValue.Json (_existing, options, _) ->
-            JsonSerializer.Serialize (s.Actual, options)
+            JsonSerializer.Serialize (s.Actual (), options)
             |> JsonDocument.Parse
             |> _.RootElement
             |> _.ToString()
@@ -116,7 +116,7 @@ module internal CompletedSnapshotGeneric =
                     None
 
             let canonicalActual =
-                JsonSerializer.Serialize (state.Actual, jsonSerOptions) |> JsonDocument.Parse
+                JsonSerializer.Serialize (state.Actual (), jsonSerOptions) |> JsonDocument.Parse
 
             match canonicalSnapshot with
             | None -> Some ("[JSON failed to parse:] " + snapshot, canonicalActual.RootElement.ToString ())

@@ -277,6 +277,8 @@ type ExpectBuilder (mode : Mode) =
             Actual = Some (fun () -> value)
         }
 
+    /// Expresses the "actual value" component of the assertion "expected snapshot = actual value", but delayed behind
+    /// a function (by contrast with `Return`).
     member _.ReturnFrom (value : unit -> 'T) : ExpectState<'T> =
         {
             Snapshot = None
