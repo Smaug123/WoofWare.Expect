@@ -44,6 +44,13 @@ let ``This test fails: plain text comparison of ToString`` () =
         snapshot "  123  "
         return 123
     }
+
+[<Test>]
+let ``With return! and snapshotThrows, you can see exceptions too`` () =
+    expect {
+        snapshotThrows @"System.Exception: oh no"
+        return! (fun () -> failwith<int> "oh no")
+    }
 ```
 
 You can adjust the formatting:
