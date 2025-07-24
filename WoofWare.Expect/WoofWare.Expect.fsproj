@@ -36,8 +36,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <!-- FSharp.SystemTextJson requires at least this version -->
-      <PackageReference Update="FSharp.Core" Version="4.7.0" />
+      <!-- Fantomas.FCS requires at least this version -->
+      <PackageReference Update="FSharp.Core" Version="8.0.100" />
+      <PackageReference Include="Fantomas.FCS" Version="7.0.3" />
       <PackageReference Include="FSharp.SystemTextJson" Version="1.4.36" />
       <!-- Needed for DeepEquals -->
       <PackageReference Include="System.Text.Json" Version="9.0.0" />

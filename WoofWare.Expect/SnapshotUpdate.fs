@@ -2,6 +2,7 @@ namespace WoofWare.Expect
 
 open System
 open System.Text.RegularExpressions
+open Fantomas.FCS.Text
 
 type private StringLiteralInfo =
     {
@@ -207,6 +208,7 @@ module internal SnapshotUpdate =
     /// instead returns the new contents.
     /// We always write single-quoted @-strings for simplicity.
     let private updateSnapshot (lines : string[]) (info : StringLiteralInfo) (newContent : string) : string[] =
+        let f, _ = Fantomas.FCS.Parse.parseFile false (SourceText.ofString (String.concat "\n" lines)) []
         let newString = "@\"" + newContent.Replace ("\"", "\"\"") + "\""
 
         if info.StartLine = info.EndLine then
