@@ -15,7 +15,7 @@ type private StringLiteralInfo =
     override this.ToString () =
         sprintf "%i:%i to %i:%i: %s" this.StartLine this.StartColumn this.EndLine this.EndColumn this.Content
 
-type private Position =
+type private SnapshotPosition =
     {
         Line : int
         Column : int
@@ -28,8 +28,8 @@ module internal SnapshotUpdate =
     let tripleQuote = "\"\"\""
 
     /// Convert a string position to line/column
-    let private positionToLineColumn (text : string) (offset : int) : Position =
-        let rec loop (line : int) (col : int) (totalOffset : int) (i : int) : Position =
+    let private positionToLineColumn (text : string) (offset : int) : SnapshotPosition =
+        let rec loop (line : int) (col : int) (totalOffset : int) (i : int) : SnapshotPosition =
             if i >= text.Length || totalOffset = offset then
                 {
                     Line = line

@@ -19,12 +19,9 @@ module SimpleTest =
     let ``Example of a failing test`` () =
         expect {
             snapshot
-                @"snapshot mismatch! snapshot at filepath.fs:99 (Example of a failing test) was:
+                @"snapshot mismatch! snapshot at filepath.fs:99 (Example of a failing test) diff:
 
 - 123
-
-actual was:
-
 + 124"
 
             return
@@ -64,26 +61,21 @@ actual was:
         // Out of the box, comments in snapshots cause the JSON parser to throw, so the snapshot fails to match...
         expect {
             snapshot
-                @"snapshot mismatch! snapshot at file.fs:99 (Custom JSON output) was:
+                @"snapshot mismatch! snapshot at file.fs:99 (Custom JSON output) diff:
 
 - [JSON failed to parse:] {
--     // a key here
--     ""a"":3
-- }
-
-actual was:
-
+-   // a key here
 + {
-+   ""a"": 3
-+ }"
+    ""a"": 3
+  }"
 
             return
                 Assert.Throws<ExpectException> (fun () ->
                     expectWithMockedFilePath ("file.fs", 99) {
                         snapshotJson
                             @"{
-    // a key here
-    ""a"":3
+  // a key here
+  ""a"": 3
 }"
 
                         return Map.ofList [ "a", 3 ]
