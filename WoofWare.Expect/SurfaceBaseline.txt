@@ -58,9 +58,11 @@ WoofWare.Expect.ExpectBuilder.Bind [method]: ('U WoofWare.Expect.ExpectState, un
 WoofWare.Expect.ExpectBuilder.Delay [method]: (unit -> 'T WoofWare.Expect.ExpectState) -> (unit -> 'T WoofWare.Expect.ExpectState)
 WoofWare.Expect.ExpectBuilder.Return [method]: 'T -> 'T WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.Return [method]: unit -> 'T WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectBuilder.ReturnFrom [method]: (unit -> 'T) -> 'T WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.Run [method]: (unit -> 'T WoofWare.Expect.ExpectState) -> unit
 WoofWare.Expect.ExpectBuilder.Snapshot [method]: ('a WoofWare.Expect.ExpectState, string, string option, int option, string option) -> 'a WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.SnapshotJson [method]: (unit WoofWare.Expect.ExpectState, string, string option, int option, string option) -> 'a WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectBuilder.SnapshotThrows [method]: ('a WoofWare.Expect.ExpectState, string, string option, int option, string option) -> 'a WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.WithFormat [method]: ('T WoofWare.Expect.ExpectState, 'T -> string) -> 'T WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.WithJsonDocOptions [method]: ('T WoofWare.Expect.ExpectState, System.Text.Json.JsonDocumentOptions) -> 'T WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.WithJsonSerializerOptions [method]: ('T WoofWare.Expect.ExpectState, System.Text.Json.JsonSerializerOptions) -> 'T WoofWare.Expect.ExpectState

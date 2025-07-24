@@ -14,6 +14,7 @@
       <Compile Include="BulkUpdateExample.fs" />
       <Compile Include="SimpleTest.fs" />
       <Compile Include="TestDiff.fs" />
+      <Compile Include="TestExceptionThrowing.fs" />
       <Compile Include="TestSurface.fs" />
       <Compile Include="TestSnapshotFinding\TestSnapshotFinding.fs" />
       <Compile Include="TestSnapshotFinding\TestUnicodeCharacters.fs" />

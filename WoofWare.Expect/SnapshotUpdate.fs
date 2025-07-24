@@ -147,7 +147,8 @@ module internal SnapshotUpdate =
             let searchText = String.concat "\n" relevantLines
 
             // Find snapshot keyword
-            let snapshotMatch = Regex.Match (searchText, @"\b(snapshot|snapshotJson)\b")
+            let snapshotMatch =
+                Regex.Match (searchText, @"\b(snapshot|snapshotJson|snapshotThrows)\b")
 
             if not snapshotMatch.Success then
                 None
