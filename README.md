@@ -187,6 +187,11 @@ Observe the `OneTimeSetUp` which sets global state to enter "bulk update" mode, 
 
 * The snapshot updating mechanism *requires* you to use verbatim string literals. While the test assertions will work correctly if you do `snapshot ("foo" + "bar" + f 3)`, for example, the updating code is liable to do something undefined in that case. Also do not use format strings (`$"blah"`).
 
+# Output formats
+
+* The `Diff` module provides a Patience diff and a Myers diff implementation, which you can use to make certain tests much more readable.
+* The `GraphViz` module provides `render`, which renders a dot file as ASCII art. You will need `graph-easy` to use this feature.
+
 # Licence
 
 MIT.
