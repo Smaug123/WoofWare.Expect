@@ -50,6 +50,10 @@ WoofWare.Expect.DiffOperation.NewDelete [static method]: (int, string) -> WoofWa
 WoofWare.Expect.DiffOperation.NewInsert [static method]: (int, string) -> WoofWare.Expect.DiffOperation
 WoofWare.Expect.DiffOperation.NewMatch [static method]: (int, int, string) -> WoofWare.Expect.DiffOperation
 WoofWare.Expect.DiffOperation.Tag [property]: [read-only] int
+WoofWare.Expect.Dot inherit obj
+WoofWare.Expect.Dot.get_render [static method]: unit -> (string -> string)
+WoofWare.Expect.Dot.render [static property]: [read-only] string -> string
+WoofWare.Expect.Dot.render' [static method]: (System.Diagnostics.Process -> bool) -> (System.Diagnostics.Process -> unit) -> (unit -> string) -> (string -> unit) -> (string -> string -> unit) -> string -> string -> string
 WoofWare.Expect.ExpectBuilder inherit obj
 WoofWare.Expect.ExpectBuilder..ctor [constructor]: (string * int)
 WoofWare.Expect.ExpectBuilder..ctor [constructor]: bool

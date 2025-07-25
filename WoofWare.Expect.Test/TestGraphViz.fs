@@ -31,5 +31,5 @@ module TestGraphViz =
 └───────────────────────┘
 "
 
-            return GraphViz.render s
+            return Dot.render s
         }

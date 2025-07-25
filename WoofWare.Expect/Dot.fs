@@ -3,9 +3,9 @@ namespace WoofWare.Expect
 open System.Diagnostics
 open System.IO
 
-/// Methods for accessing GraphViz.
+/// Methods for rendering dot files (specifications of graphs).
 [<RequireQualifiedAccess>]
-module GraphViz =
+module Dot =
 
     /// writeFile takes the filepath first and the contents second.
     let render'
