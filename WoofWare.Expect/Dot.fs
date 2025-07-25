@@ -17,6 +17,8 @@ module Dot =
         abstract WaitForExit : 'Process -> unit
         /// Equivalent to Process.StandardOutput.ReadToEnd
         abstract ReadStandardOutput : 'Process -> string
+        /// Equivalent to Process.ExitCode
+        abstract ExitCode : 'Process -> int
 
     /// The real Process interface, in a form that can be passed to `render'`.
     let process' =
@@ -32,6 +34,7 @@ module Dot =
             member _.Start p = p.Start ()
             member _.WaitForExit p = p.WaitForExit ()
             member _.ReadStandardOutput p = p.StandardOutput.ReadToEnd ()
+            member _.ExitCode p = p.ExitCode
         }
 
     /// A mock for System.IO
@@ -70,7 +73,13 @@ module Dot =
             pr.Start p |> ignore<bool>
             pr.WaitForExit p
 
-            "\n" + pr.ReadStandardOutput p
+            let stdout = pr.ReadStandardOutput p
+            let exitCode = pr.ExitCode p
+
+            if exitCode <> 0 then
+                failwithf "failed to run; exit code: %i. stdout:\n%s" exitCode stdout
+
+            "\n" + stdout
         finally
             try
                 fs.DeleteFile tempFile
