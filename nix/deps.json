@@ -190,6 +190,11 @@
     "hash": "sha256-nkC/PiqE6+c1HJ2yTwg3x+qdBh844Z8n3ERWDW8k6Gg="
   },
   {
+    "pname": "System.IO.Abstractions.TestingHelpers",
+    "version": "4.2.13",
+    "hash": "sha256-WGGatXlgyROnptdw0zU3ggf54eD/zusO/fvtf+5wuPU="
+  },
+  {
     "pname": "System.IO.FileSystem.AccessControl",
     "version": "4.5.0",
     "hash": "sha256-ck44YBQ0M+2Im5dw0VjBgFD1s0XuY54cujrodjjSBL8="

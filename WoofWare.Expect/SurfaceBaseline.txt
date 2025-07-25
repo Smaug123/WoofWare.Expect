@@ -50,6 +50,23 @@ WoofWare.Expect.DiffOperation.NewDelete [static method]: (int, string) -> WoofWa
 WoofWare.Expect.DiffOperation.NewInsert [static method]: (int, string) -> WoofWare.Expect.DiffOperation
 WoofWare.Expect.DiffOperation.NewMatch [static method]: (int, int, string) -> WoofWare.Expect.DiffOperation
 WoofWare.Expect.DiffOperation.Tag [property]: [read-only] int
+WoofWare.Expect.Dot inherit obj
+WoofWare.Expect.Dot+IFileSystem - interface with 3 member(s)
+WoofWare.Expect.Dot+IFileSystem.DeleteFile [method]: string -> unit
+WoofWare.Expect.Dot+IFileSystem.GetTempFileName [method]: unit -> string
+WoofWare.Expect.Dot+IFileSystem.WriteFile [method]: string -> string -> unit
+WoofWare.Expect.Dot+IProcess`1 - interface with 4 member(s)
+WoofWare.Expect.Dot+IProcess`1.Create [method]: string -> string -> #(IDisposable)
+WoofWare.Expect.Dot+IProcess`1.ReadStandardOutput [method]: #(IDisposable) -> string
+WoofWare.Expect.Dot+IProcess`1.Start [method]: #(IDisposable) -> bool
+WoofWare.Expect.Dot+IProcess`1.WaitForExit [method]: #(IDisposable) -> unit
+WoofWare.Expect.Dot.fileSystem [static property]: [read-only] WoofWare.Expect.Dot+IFileSystem
+WoofWare.Expect.Dot.get_fileSystem [static method]: unit -> WoofWare.Expect.Dot+IFileSystem
+WoofWare.Expect.Dot.get_process' [static method]: unit -> System.Diagnostics.Process WoofWare.Expect.Dot+IProcess
+WoofWare.Expect.Dot.get_render [static method]: unit -> (string -> string)
+WoofWare.Expect.Dot.process' [static property]: [read-only] System.Diagnostics.Process WoofWare.Expect.Dot+IProcess
+WoofWare.Expect.Dot.render [static property]: [read-only] string -> string
+WoofWare.Expect.Dot.render' [static method]: #(IDisposable) WoofWare.Expect.Dot+IProcess -> WoofWare.Expect.Dot+IFileSystem -> string -> string -> string
 WoofWare.Expect.ExpectBuilder inherit obj
 WoofWare.Expect.ExpectBuilder..ctor [constructor]: (string * int)
 WoofWare.Expect.ExpectBuilder..ctor [constructor]: bool
