@@ -34,6 +34,7 @@
         </None>
         <EmbeddedResource Include="SurfaceBaseline.txt"/>
         <EmbeddedResource Include="version.json"/>
+        <Compile Include="GraphViz.fs" />
     </ItemGroup>
 
     <ItemGroup>

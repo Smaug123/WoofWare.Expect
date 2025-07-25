@@ -66,6 +66,7 @@
           pkgs.nodePackages.markdown-link-check
           pkgs.shellcheck
           pkgs.xmlstarlet
+          pkgs.graph-easy
         ];
       };
     });
