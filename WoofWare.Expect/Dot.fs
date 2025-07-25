@@ -66,7 +66,7 @@ module Dot =
         try
             fs.WriteFile tempFile dotFileContents
 
-            use p = pr.Create graphEasyExecutable ("--as=boxarg --from=dot " + tempFile)
+            use p = pr.Create graphEasyExecutable ("--as=boxart --from=dot " + tempFile)
             pr.Start p |> ignore<bool>
             pr.WaitForExit p
 

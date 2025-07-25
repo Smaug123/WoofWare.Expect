@@ -84,7 +84,7 @@ module TestDot =
                 member _.Create exe args =
                     exe |> shouldEqual "graph-easy"
 
-                    args.StartsWith ("--as=boxarg --from=dot ", StringComparison.Ordinal)
+                    args.StartsWith ("--as=boxart --from=dot ", StringComparison.Ordinal)
                     |> shouldEqual true
 
                     { new IDisposable with
