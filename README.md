@@ -190,7 +190,7 @@ Observe the `OneTimeSetUp` which sets global state to enter "bulk update" mode, 
 # Output formats
 
 * The `Diff` module provides a Patience diff and a Myers diff implementation, which you can use to make certain tests much more readable.
-* The `GraphViz` module provides `render`, which renders a dot file as ASCII art. You will need `graph-easy` to use this feature.
+* The `Dot` module provides `render`, which renders a dot file as ASCII art. You will need `graph-easy` to use this feature.
 
 # Licence
 
