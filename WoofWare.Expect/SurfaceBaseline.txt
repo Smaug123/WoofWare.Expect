@@ -55,8 +55,9 @@ WoofWare.Expect.Dot+IFileSystem - interface with 3 member(s)
 WoofWare.Expect.Dot+IFileSystem.DeleteFile [method]: string -> unit
 WoofWare.Expect.Dot+IFileSystem.GetTempFileName [method]: unit -> string
 WoofWare.Expect.Dot+IFileSystem.WriteFile [method]: string -> string -> unit
-WoofWare.Expect.Dot+IProcess`1 - interface with 4 member(s)
+WoofWare.Expect.Dot+IProcess`1 - interface with 5 member(s)
 WoofWare.Expect.Dot+IProcess`1.Create [method]: string -> string -> #(IDisposable)
+WoofWare.Expect.Dot+IProcess`1.ExitCode [method]: #(IDisposable) -> int
 WoofWare.Expect.Dot+IProcess`1.ReadStandardOutput [method]: #(IDisposable) -> string
 WoofWare.Expect.Dot+IProcess`1.Start [method]: #(IDisposable) -> bool
 WoofWare.Expect.Dot+IProcess`1.WaitForExit [method]: #(IDisposable) -> unit

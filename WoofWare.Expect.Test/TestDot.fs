@@ -61,6 +61,7 @@ module TestDot =
 
         let mutable started = false
         let mutable waited = false
+        let mutable exitCodeObserved = false
         let mutable disposed = false
 
         let expected =
@@ -84,7 +85,7 @@ module TestDot =
                 member _.Create exe args =
                     exe |> shouldEqual "graph-easy"
 
-                    args.StartsWith ("--as=boxarg --from=dot ", StringComparison.Ordinal)
+                    args.StartsWith ("--as=boxart --from=dot ", StringComparison.Ordinal)
                     |> shouldEqual true
 
                     { new IDisposable with
@@ -93,6 +94,10 @@ module TestDot =
 
                 member _.WaitForExit p = waited <- true
                 member _.ReadStandardOutput _ = expected
+
+                member _.ExitCode _ =
+                    exitCodeObserved <- true
+                    0
             }
 
         Dot.render' pr (toFs fs) "graph-easy" contents
@@ -101,4 +106,5 @@ module TestDot =
 
         started |> shouldEqual true
         waited |> shouldEqual true
+        exitCodeObserved |> shouldEqual true
         disposed |> shouldEqual true
