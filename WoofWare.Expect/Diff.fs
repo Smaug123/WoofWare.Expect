@@ -11,45 +11,49 @@ type Position = int<pos>
 
 /// A Patience diff is composed of a sequence of transformations to get from one string to another.
 /// This represents those transformations.
-type DiffOperation =
+type DiffOperation<'line> =
     /// This line is the same on both sides of the diff.
     /// On the left, it appears at position posA. On the right, at position posB.
-    | Match of posA : Position * posB : Position * line : string
+    | Match of posA : Position * posB : Position * line : 'line
     /// Delete this line, which is at this position.
-    | Delete of posA : Position * line : string
+    | Delete of posA : Position * line : 'line
     /// Insert this line at the given position.
-    | Insert of posB : Position * line : string
+    | Insert of posB : Position * line : 'line
+
+/// The diff between two line-oriented streams. Normally the generic parameter will be `string`, indicating
+/// that the thing being diffed was text.
+type Diff'<'line> = private | Diff of DiffOperation<'line> list
 
 /// The diff between two line-oriented pieces of text.
-type Diff = private | Diff of DiffOperation list
+type Diff = Diff'<string>
 
 /// A match between positions in two sequences
-type internal LineMatch =
+type internal LineMatch<'line> =
     {
         PosA : Position
         PosB : Position
-        Line : string
+        Line : 'line
     }
 
 /// Result of finding unique lines in a sequence
-type internal UniqueLines =
+type internal UniqueLines<'line when 'line : comparison> =
     {
         /// Map from line content to its position (only for unique lines)
-        LinePositions : Map<string, Position>
+        LinePositions : Map<'line, Position>
         /// All line counts (for verification)
-        LineCounts : Map<string, int>
+        LineCounts : Map<'line, int>
     }
 
 [<RequireQualifiedAccess>]
 module Diff =
     /// Find lines that appear exactly once in a sequence
-    let private findUniqueLines (lines : string array) : UniqueLines =
-        let positions = Dictionary<string, Position> ()
-        let counts = Dictionary<string, int> ()
+    let private findUniqueLines (lines : 'line array) : UniqueLines<'line> =
+        let positions = Dictionary<'line, Position> ()
+        let counts = Dictionary<'line, int> ()
 
         lines
         |> Array.iteri (fun i line ->
-            if counts.ContainsKey (line) then
+            if counts.ContainsKey line then
                 counts.[line] <- counts.[line] + 1
             else
                 counts.[line] <- 1
@@ -70,7 +74,7 @@ module Diff =
         }
 
     /// Find longest increasing subsequence based on B positions
-    let private longestIncreasingSubsequence (matches : LineMatch array) : LineMatch list =
+    let private longestIncreasingSubsequence (matches : LineMatch<'line> array) : LineMatch<'line> list =
         let n = matches.Length
 
         if n = 0 then
@@ -103,9 +107,8 @@ module Diff =
 
             reconstruct endIndex []
 
-    /// Simple Myers diff implementation. You probably want to use `patience` instead, for more human-readable diffs.
-    let myers (a : string array) (b : string array) : Diff =
-        let rec diffHelper (i : int) (j : int) (acc : DiffOperation list) =
+    let private myers' (a : 'line array) (b : 'line array) : DiffOperation<'line> list =
+        let rec diffHelper (i : int) (j : int) (acc : DiffOperation<'line> list) =
             match i < a.Length, j < b.Length with
             | false, false -> List.rev acc
             | true, false ->
@@ -146,11 +149,14 @@ module Diff =
                         // No close match, just delete and insert
                         diffHelper (i + 1) j (Delete (i * 1<pos>, a.[i]) :: acc)
 
-        diffHelper 0 0 [] |> Diff
+        diffHelper 0 0 []
+
+    /// Simple Myers diff implementation. You probably want to use `patience` instead, for more human-readable diffs.
+    let myers (a : string array) (b : string array) : Diff = myers' a b |> Diff
 
     /// Patience diff: a human-readable line-based diff.
     /// Operates on lines of string; the function `patience` will split on lines for you.
-    let rec patienceLines (a : string array) (b : string array) : Diff =
+    let rec patienceLines (a : 'line array) (b : 'line array) : Diff'<'line> =
         // Handle empty sequences
         match a.Length, b.Length with
         | 0, 0 -> [] |> Diff
@@ -177,7 +183,7 @@ module Diff =
 
             if Set.isEmpty commonUniques then
                 // No unique common lines, fall back to Myers
-                myers a b
+                myers' a b |> Diff
             else
                 // Build matches for unique common lines
                 let matches =
@@ -196,7 +202,7 @@ module Diff =
                 let anchorMatches = longestIncreasingSubsequence matches |> List.toArray
 
                 // Build diff imperatively
-                let result = ResizeArray<DiffOperation> ()
+                let result = ResizeArray<DiffOperation<_>> ()
                 let mutable prevA = 0<pos>
                 let mutable prevB = 0<pos>
 
@@ -244,26 +250,31 @@ module Diff =
         patienceLines (a.Split '\n') (b.Split '\n')
 
     /// Format the diff as a human-readable string, including line numbers at the left.
-    let formatWithLineNumbers (Diff ops) : string =
+    let formatWithLineNumbers' (formatter : 'line -> string) (Diff ops) : string =
         ops
         |> List.map (fun op ->
             match op with
-            | Match (a, b, line) -> sprintf "  %3d %3d  %s" a b line
-            | Delete (a, line) -> sprintf "- %3d      %s" a line
-            | Insert (b, line) -> sprintf "+     %3d  %s" b line
+            | Match (a, b, line) -> sprintf "  %3d %3d  %s" a b (formatter line)
+            | Delete (a, line) -> sprintf "- %3d      %s" a (formatter line)
+            | Insert (b, line) -> sprintf "+     %3d  %s" b (formatter line)
+        )
+        |> String.concat "\n"
+
+    let formatWithLineNumbers (d : Diff) : string = formatWithLineNumbers' id d
+
+    /// Format the diff as a human-readable string.
+    let format' (formatter : 'line -> string) (Diff ops) : string =
+        ops
+        |> List.map (fun op ->
+            match op with
+            | Match (_, _, line) -> "  " + (formatter line)
+            | Delete (_, line) -> "- " + (formatter line)
+            | Insert (_, line) -> "+ " + (formatter line)
         )
         |> String.concat "\n"
 
     /// Format the diff as a human-readable string.
-    let format (Diff ops) : string =
-        ops
-        |> List.map (fun op ->
-            match op with
-            | Match (_, _, line) -> sprintf "  %s" line
-            | Delete (_, line) -> sprintf "- %s" line
-            | Insert (_, line) -> sprintf "+ %s" line
-        )
-        |> String.concat "\n"
+    let format (ops : Diff) : string = format' id ops
 
     /// Compute diff statistics
     type internal DiffStats =
@@ -274,7 +285,7 @@ module Diff =
             TotalOperations : int
         }
 
-    let internal computeStats (ops : DiffOperation list) : DiffStats =
+    let internal computeStats (ops : DiffOperation<'a> list) : DiffStats =
         let counts =
             ops
             |> List.fold

@@ -1,5 +1,6 @@
 namespace WoofWare.Expect
 
+open System.Collections
 open System.Text.Json
 open System.Text.Json.Serialization
 
@@ -21,6 +22,7 @@ type private SnapshotValue =
 
 type private CompletedSnapshotValue<'T> =
     | Json of expected : string * JsonSerializerOptions * JsonDocumentOptions
+    | List of expected : string list * format : ((unit -> 'T seq) -> string)
     | Formatted of expected : string * format : ((unit -> 'T) -> string)
 
 /// The state accumulated by the `expect` builder. You should never find yourself interacting with this type.
@@ -32,6 +34,14 @@ type ExpectState<'T> =
             JsonDocOptions : JsonDocumentOptions option
             Snapshot : (SnapshotValue * CallerInfo) option
             Actual : (unit -> 'T) option
+        }
+
+type ExpectStateListy<'T> =
+    private
+        {
+            Formatter : ((unit -> 'T) -> string) option
+            Snapshot : (string list * CallerInfo) option
+            Actual : (unit -> 'T seq) option
         }
 
 /// The state accumulated by the `expect` builder. You should never find yourself interacting with this type.
@@ -101,6 +111,12 @@ module internal CompletedSnapshotGeneric =
             |> _.RootElement
             |> _.ToString()
         | CompletedSnapshotValue.Formatted (_existing, f) -> f s.Actual
+        | CompletedSnapshotValue.List (_existing, f) ->
+            s.Actual ()
+            |> unbox<IEnumerable>
+            |> Seq.cast
+            |> Seq.map (fun x -> f (fun () -> x))
+            |> String.concat ",\n"
 
     /// Returns None if the assertion passes, or Some (expected, actual) if the assertion fails.
     let internal passesAssertion (state : CompletedSnapshotGeneric<'T>) : (string * string) option =
@@ -125,6 +141,18 @@ module internal CompletedSnapshotGeneric =
                     Some (canonicalSnapshot.RootElement.ToString (), canonicalActual.RootElement.ToString ())
                 else
                     None
+        | CompletedSnapshotValue.List (expected, f) ->
+            let actual =
+                state.Actual ()
+                |> unbox<IEnumerable>
+                |> Seq.cast
+                |> Seq.map (fun x -> f (fun () -> x))
+                |> Seq.toList
+
+            if expected <> actual then
+                Some (expected |> String.concat ",\n", actual |> String.concat ",\n")
+            else
+                None
 
 /// Represents a snapshot test that has failed and is awaiting update or report to the user.
 type CompletedSnapshot =

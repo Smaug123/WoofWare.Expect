@@ -203,11 +203,22 @@ module internal SnapshotUpdate =
                         )
                 )
 
+    let internal stringLiteral (content : string) =
+        if
+            (content.IndexOf '\n' < 0)
+            && (content.IndexOf '\\' < 0)
+            && (content.IndexOf '"' < 0)
+        then
+            // simple case where there's no escaping
+            "\"" + content + "\""
+        else
+            "@\"" + content.Replace ("\"", "\"\"") + "\""
+
     /// Update the snapshot string with a new value; this doesn't edit the file on disk, but
     /// instead returns the new contents.
     /// We always write single-quoted @-strings for simplicity.
     let private updateSnapshot (lines : string[]) (info : StringLiteralInfo) (newContent : string) : string[] =
-        let newString = "@\"" + newContent.Replace ("\"", "\"\"") + "\""
+        let newString = stringLiteral newContent
 
         if info.StartLine = info.EndLine then
             // Single line update
