@@ -529,7 +529,7 @@ type ExpectBuilder (mode : Mode) =
         if snapshot <> actual then
             let diff =
                 Diff.patienceLines (Array.ofList snapshot) (Array.ofList actual)
-                |> Diff.formatWithLineNumbers
+                |> Diff.format
 
             match mode with
             | Mode.Assert ->
