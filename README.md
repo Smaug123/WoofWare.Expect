@@ -16,8 +16,7 @@ An [expect-testing](https://blog.janestreet.com/the-joy-of-expect-tests/) librar
 # Current status
 
 The basic mechanism works.
-Snapshot updating is vibe-coded with Opus 4 and is purely text-based; I didn't want to use the F# compiler services because that's a pretty heavyweight dependency which should be confined to a separate test runner entity.
-It's fairly well tested, but you will certainly be able to find ways to break it; try not to be too fancy with your syntax around the `snapshot` statement.
+It's fairly well tested, but you will almost certainly be able to find ways to break it; try not to be too fancy with your syntax around the `snapshot` statement.
 
 # How to use
 
@@ -51,7 +50,16 @@ let ``With return! and snapshotThrows, you can see exceptions too`` () =
         snapshotThrows @"System.Exception: oh no"
         return! (fun () -> failwith<int> "oh no")
     }
+
+[<Test>]
+let ``You can do lists more neatly with the snapshotList keyword`` () =
+    expect {
+        snapshotList [ "8" ; "9" ; "10" ; "11" ; "12" ]
+        return [ 8..12 ]
+    }
 ```
+
+(JSON output for elements is not yet supported with `snapshotList`.)
 
 You can adjust the formatting:
 
@@ -63,6 +71,15 @@ let ``Overriding the formatting`` () =
         withFormat (fun x -> x.GetType().Name)
         snapshot @"Int32"
         return 123
+    }
+
+[<Test>]
+let ``Overriding the formatting with lists`` () =
+    expect {
+        // these two lines *do* have to be in this order, for annoying reasons
+        snapshotList [ "8" ; "9" ; "0" ; "1" ; "2" ]
+        withFormat (fun x -> string<int> (x % 10))
+        return [ 8..12 ]
     }
 ```
 

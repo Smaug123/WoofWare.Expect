@@ -17,8 +17,6 @@ type Mode =
     | Update
     | AssertMockingSource of (string * int)
 
-type BuilderKindNormal<'T> = | BuilderKindNormal of unit
-
 /// <summary>
 /// The builder which powers WoofWare.Expect.
 /// </summary>
@@ -35,6 +33,7 @@ type ExpectBuilder (mode : Mode) =
         else
             ExpectBuilder Mode.Assert
 
+    /// Combine two `ExpectStateListy`s. The first one is the "expected" snapshot; the second is the "actual".
     member _.Bind<'U> (state : ExpectStateListy<'U>, f : unit -> ExpectStateListy<'U>) : ExpectStateListy<'U> =
         let actual = f ()
 
@@ -58,6 +57,8 @@ type ExpectBuilder (mode : Mode) =
             Actual = actual.Actual
         }
 
+    /// Combine an `ExpectStateListy` with an `ExpectState`. The first one is the "expected" snapshot; the second is
+    /// the "actual".
     member _.Bind<'U, 'elt when 'U :> IEnumerable<'elt>>
         (state : ExpectStateListy<'elt>, f : unit -> ExpectState<'U>)
         : ExpectStateListy<'elt>
@@ -126,6 +127,7 @@ type ExpectBuilder (mode : Mode) =
             JsonDocOptions = jsonDocOptions
         }
 
+    /// <summary>Express that the actual value's <c>ToString</c> should identically equal this string.</summary>
     [<CustomOperation("snapshot", MaintainsVariableSpaceUsingBind = true)>]
     member _.Snapshot<'a>
         (
@@ -190,6 +192,13 @@ type ExpectBuilder (mode : Mode) =
                 Actual = None
             }
 
+    /// <summary>
+    /// Express that the actual value, when converted to JSON, should result in a JSON document
+    /// which matches the JSON document that is this string.
+    /// </summary>
+    /// <remarks>
+    /// For example, <c>snapshotJson "123"</c> indicates the JSON integer 123.
+    /// </remarks>
     [<CustomOperation("snapshotJson", MaintainsVariableSpaceUsingBind = true)>]
     member this.SnapshotJson<'a>
         (
@@ -263,6 +272,13 @@ type ExpectBuilder (mode : Mode) =
                 Actual = None
             }
 
+    /// <summary>
+    /// Express that the actual value, which is a sequence, should have elements which individually (in order) match
+    /// this snapshot list.
+    /// </summary>
+    /// <remarks>
+    /// For example, <c>snapshotList ["123" ; "456"]</c> indicates an exactly-two-element list <c>[123 ; 456]</c>.
+    /// </remarks>
     [<CustomOperation("snapshotList", MaintainsVariableSpaceUsingBind = true)>]
     member _.SnapshotList<'a>
         (
@@ -340,6 +356,17 @@ type ExpectBuilder (mode : Mode) =
                 Actual = None
             }
 
+    /// <summary>
+    /// Expresses that the given expression throws during evaluation.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// expect {
+    ///     snapshotThrows @"System.Exception: oh no"
+    ///     return! (fun () -> failwith "oh no")
+    /// }
+    /// </code>
+    /// </example>
     [<CustomOperation("snapshotThrows", MaintainsVariableSpaceUsingBind = true)>]
     member _.SnapshotThrows<'a>
         (
@@ -377,7 +404,6 @@ type ExpectBuilder (mode : Mode) =
     /// <summary>
     /// Express that the <c>return</c> value of this builder should be formatted using this function, before
     /// comparing to the snapshot.
-    /// this value.
     /// </summary>
     /// <remarks>
     /// For example, <c>withFormat (fun x -> x.ToString ()) "123"</c> is equivalent to <c>snapshot "123"</c>.
@@ -391,6 +417,14 @@ type ExpectBuilder (mode : Mode) =
                 Formatter = Some (fun f -> f () |> formatter)
             }
 
+    /// <summary>
+    /// Express that the <c>return</c> value of this builder should be formatted using this function, before
+    /// comparing to the snapshot.
+    /// In the case of <c>snapshotList</c>, this applies to the elements of the sequence, not to the sequence itself.
+    /// </summary>
+    /// <remarks>
+    /// For example, <c>withFormat (fun x -> x.ToString ()) "123"</c> is equivalent to <c>snapshot "123"</c>.
+    /// </remarks>
     [<CustomOperation("withFormat", MaintainsVariableSpaceUsingBind = true)>]
     member _.WithFormat<'T> (state : ExpectStateListy<'T>, formatter : 'T -> string) =
         match state.Formatter with
@@ -423,6 +457,20 @@ type ExpectBuilder (mode : Mode) =
                 JsonSerialiserOptions = Some jsonOptions
             }
 
+    /// <summary>
+    /// Express that these JsonSerializerOptions should be used to construct the JSON object to which the snapshot
+    /// is to be compared (or, in write-out-the-snapshot mode, to construct the JSON object to be written out).
+    /// </summary>
+    /// <example>
+    /// If you want your snapshots to be written out compactly, rather than the default indenting:
+    /// <code>
+    /// expect {
+    ///     snapshotJson @"{""a"":3}"
+    ///     withJsonSerializerOptions (JsonSerializerOptions (WriteIndented = false))
+    ///     return Map.ofList ["a", 3]
+    /// }
+    /// </code>
+    /// </example>
     [<CustomOperation("withJsonSerializerOptions", MaintainsVariableSpaceUsingBind = true)>]
     member _.WithJsonSerializerOptions<'T> (state : ExpectStateListy<'T>, jsonOptions : JsonSerializerOptions) =
         match state.Snapshot with
@@ -506,6 +554,7 @@ type ExpectBuilder (mode : Mode) =
     /// Computation expression `Delay`.
     member _.Delay (f : unit -> ExpectStateListy<'T>) : unit -> ExpectStateListy<'T> = f
 
+    /// Computation expression `Run`, which runs a `Delay`ed snapshot assertion, throwing if the assertion fails.
     member _.Run (f : unit -> ExpectStateListy<'T>) : unit =
         let state = f ()
 
@@ -528,14 +577,16 @@ type ExpectBuilder (mode : Mode) =
 
         if snapshot <> actual then
             let diff =
-                Diff.patienceLines (Array.ofList snapshot) (Array.ofList actual)
-                |> Diff.format
+                Diff.patienceLines (Array.ofList snapshot) (Array.ofList actual) |> Diff.format
 
             match mode with
             | Mode.Assert ->
-                $"snapshot mismatch! snapshot at %s{caller.FilePath}:%i{caller.LineNumber} (%s{caller.MemberName}) diff:\n%s{diff}"
-                |> ExpectException
-                |> raise
+                if GlobalBuilderConfig.isBulkUpdateMode () then
+                    GlobalBuilderConfig.registerTest state
+                else
+                    $"snapshot mismatch! snapshot at %s{caller.FilePath}:%i{caller.LineNumber} (%s{caller.MemberName}) diff:\n%s{diff}"
+                    |> ExpectException
+                    |> raise
             | Mode.AssertMockingSource (mockSource, line) ->
                 $"snapshot mismatch! snapshot at %s{mockSource}:%i{line} (%s{caller.MemberName}) diff:\n%s{diff}"
                 |> ExpectException

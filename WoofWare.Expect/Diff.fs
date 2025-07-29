@@ -44,6 +44,7 @@ type internal UniqueLines<'line when 'line : comparison> =
         LineCounts : Map<'line, int>
     }
 
+/// The diff between two line-oriented pieces of text.
 [<RequireQualifiedAccess>]
 module Diff =
     /// Find lines that appear exactly once in a sequence
@@ -260,6 +261,7 @@ module Diff =
         )
         |> String.concat "\n"
 
+    /// Format the diff as a human-readable string, including line numbers at the left.
     let formatWithLineNumbers (d : Diff) : string = formatWithLineNumbers' id d
 
     /// Format the diff as a human-readable string.
