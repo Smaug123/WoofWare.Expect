@@ -8,48 +8,50 @@ WoofWare.Expect.CallerInfo inherit obj, implements WoofWare.Expect.CallerInfo Sy
 WoofWare.Expect.CallerInfo.Equals [method]: (WoofWare.Expect.CallerInfo, System.Collections.IEqualityComparer) -> bool
 WoofWare.Expect.CompletedSnapshot inherit obj, implements WoofWare.Expect.CompletedSnapshot System.IEquatable, System.Collections.IStructuralEquatable, WoofWare.Expect.CompletedSnapshot System.IComparable, System.IComparable, System.Collections.IStructuralComparable
 WoofWare.Expect.CompletedSnapshot.Equals [method]: (WoofWare.Expect.CompletedSnapshot, System.Collections.IEqualityComparer) -> bool
-WoofWare.Expect.Diff inherit obj, implements WoofWare.Expect.Diff System.IEquatable, System.Collections.IStructuralEquatable, WoofWare.Expect.Diff System.IComparable, System.IComparable, System.Collections.IStructuralComparable
-WoofWare.Expect.Diff.Equals [method]: (WoofWare.Expect.Diff, System.Collections.IEqualityComparer) -> bool
+WoofWare.Expect.Diff'`1 inherit obj, implements 'line WoofWare.Expect.Diff' System.IEquatable, System.Collections.IStructuralEquatable, 'line WoofWare.Expect.Diff' System.IComparable, System.IComparable, System.Collections.IStructuralComparable
+WoofWare.Expect.Diff'`1.Equals [method]: ('line WoofWare.Expect.Diff', System.Collections.IEqualityComparer) -> bool
 WoofWare.Expect.DiffModule inherit obj
-WoofWare.Expect.DiffModule.format [static method]: WoofWare.Expect.Diff -> string
-WoofWare.Expect.DiffModule.formatWithLineNumbers [static method]: WoofWare.Expect.Diff -> string
-WoofWare.Expect.DiffModule.myers [static method]: string [] -> string [] -> WoofWare.Expect.Diff
-WoofWare.Expect.DiffModule.patience [static method]: string -> string -> WoofWare.Expect.Diff
-WoofWare.Expect.DiffModule.patienceLines [static method]: string [] -> string [] -> WoofWare.Expect.Diff
-WoofWare.Expect.DiffOperation inherit obj, implements WoofWare.Expect.DiffOperation System.IEquatable, System.Collections.IStructuralEquatable, WoofWare.Expect.DiffOperation System.IComparable, System.IComparable, System.Collections.IStructuralComparable - union type with 3 cases
-WoofWare.Expect.DiffOperation+Delete inherit WoofWare.Expect.DiffOperation
-WoofWare.Expect.DiffOperation+Delete.get_line [method]: unit -> string
-WoofWare.Expect.DiffOperation+Delete.get_posA [method]: unit -> int
-WoofWare.Expect.DiffOperation+Delete.line [property]: [read-only] string
-WoofWare.Expect.DiffOperation+Delete.posA [property]: [read-only] int
-WoofWare.Expect.DiffOperation+Insert inherit WoofWare.Expect.DiffOperation
-WoofWare.Expect.DiffOperation+Insert.get_line [method]: unit -> string
-WoofWare.Expect.DiffOperation+Insert.get_posB [method]: unit -> int
-WoofWare.Expect.DiffOperation+Insert.line [property]: [read-only] string
-WoofWare.Expect.DiffOperation+Insert.posB [property]: [read-only] int
-WoofWare.Expect.DiffOperation+Match inherit WoofWare.Expect.DiffOperation
-WoofWare.Expect.DiffOperation+Match.get_line [method]: unit -> string
-WoofWare.Expect.DiffOperation+Match.get_posA [method]: unit -> int
-WoofWare.Expect.DiffOperation+Match.get_posB [method]: unit -> int
-WoofWare.Expect.DiffOperation+Match.line [property]: [read-only] string
-WoofWare.Expect.DiffOperation+Match.posA [property]: [read-only] int
-WoofWare.Expect.DiffOperation+Match.posB [property]: [read-only] int
-WoofWare.Expect.DiffOperation+Tags inherit obj
-WoofWare.Expect.DiffOperation+Tags.Delete [static field]: int = 1
-WoofWare.Expect.DiffOperation+Tags.Insert [static field]: int = 2
-WoofWare.Expect.DiffOperation+Tags.Match [static field]: int = 0
-WoofWare.Expect.DiffOperation.Equals [method]: (WoofWare.Expect.DiffOperation, System.Collections.IEqualityComparer) -> bool
-WoofWare.Expect.DiffOperation.get_IsDelete [method]: unit -> bool
-WoofWare.Expect.DiffOperation.get_IsInsert [method]: unit -> bool
-WoofWare.Expect.DiffOperation.get_IsMatch [method]: unit -> bool
-WoofWare.Expect.DiffOperation.get_Tag [method]: unit -> int
-WoofWare.Expect.DiffOperation.IsDelete [property]: [read-only] bool
-WoofWare.Expect.DiffOperation.IsInsert [property]: [read-only] bool
-WoofWare.Expect.DiffOperation.IsMatch [property]: [read-only] bool
-WoofWare.Expect.DiffOperation.NewDelete [static method]: (int, string) -> WoofWare.Expect.DiffOperation
-WoofWare.Expect.DiffOperation.NewInsert [static method]: (int, string) -> WoofWare.Expect.DiffOperation
-WoofWare.Expect.DiffOperation.NewMatch [static method]: (int, int, string) -> WoofWare.Expect.DiffOperation
-WoofWare.Expect.DiffOperation.Tag [property]: [read-only] int
+WoofWare.Expect.DiffModule.format [static method]: string WoofWare.Expect.Diff' -> string
+WoofWare.Expect.DiffModule.format' [static method]: ('line -> string) -> 'line WoofWare.Expect.Diff' -> string
+WoofWare.Expect.DiffModule.formatWithLineNumbers [static method]: string WoofWare.Expect.Diff' -> string
+WoofWare.Expect.DiffModule.formatWithLineNumbers' [static method]: ('line -> string) -> 'line WoofWare.Expect.Diff' -> string
+WoofWare.Expect.DiffModule.myers [static method]: string [] -> string [] -> string WoofWare.Expect.Diff'
+WoofWare.Expect.DiffModule.patience [static method]: string -> string -> string WoofWare.Expect.Diff'
+WoofWare.Expect.DiffModule.patienceLines [static method]: 'line [] -> 'line [] -> 'line WoofWare.Expect.Diff'
+WoofWare.Expect.DiffOperation`1 inherit obj, implements 'line WoofWare.Expect.DiffOperation System.IEquatable, System.Collections.IStructuralEquatable, 'line WoofWare.Expect.DiffOperation System.IComparable, System.IComparable, System.Collections.IStructuralComparable - union type with 3 cases
+WoofWare.Expect.DiffOperation`1+Delete inherit 'line WoofWare.Expect.DiffOperation
+WoofWare.Expect.DiffOperation`1+Delete.get_line [method]: unit -> 'line
+WoofWare.Expect.DiffOperation`1+Delete.get_posA [method]: unit -> int
+WoofWare.Expect.DiffOperation`1+Delete.line [property]: [read-only] 'line
+WoofWare.Expect.DiffOperation`1+Delete.posA [property]: [read-only] int
+WoofWare.Expect.DiffOperation`1+Insert inherit 'line WoofWare.Expect.DiffOperation
+WoofWare.Expect.DiffOperation`1+Insert.get_line [method]: unit -> 'line
+WoofWare.Expect.DiffOperation`1+Insert.get_posB [method]: unit -> int
+WoofWare.Expect.DiffOperation`1+Insert.line [property]: [read-only] 'line
+WoofWare.Expect.DiffOperation`1+Insert.posB [property]: [read-only] int
+WoofWare.Expect.DiffOperation`1+Match inherit 'line WoofWare.Expect.DiffOperation
+WoofWare.Expect.DiffOperation`1+Match.get_line [method]: unit -> 'line
+WoofWare.Expect.DiffOperation`1+Match.get_posA [method]: unit -> int
+WoofWare.Expect.DiffOperation`1+Match.get_posB [method]: unit -> int
+WoofWare.Expect.DiffOperation`1+Match.line [property]: [read-only] 'line
+WoofWare.Expect.DiffOperation`1+Match.posA [property]: [read-only] int
+WoofWare.Expect.DiffOperation`1+Match.posB [property]: [read-only] int
+WoofWare.Expect.DiffOperation`1+Tags inherit obj
+WoofWare.Expect.DiffOperation`1+Tags.Delete [static field]: int = 1
+WoofWare.Expect.DiffOperation`1+Tags.Insert [static field]: int = 2
+WoofWare.Expect.DiffOperation`1+Tags.Match [static field]: int = 0
+WoofWare.Expect.DiffOperation`1.Equals [method]: ('line WoofWare.Expect.DiffOperation, System.Collections.IEqualityComparer) -> bool
+WoofWare.Expect.DiffOperation`1.get_IsDelete [method]: unit -> bool
+WoofWare.Expect.DiffOperation`1.get_IsInsert [method]: unit -> bool
+WoofWare.Expect.DiffOperation`1.get_IsMatch [method]: unit -> bool
+WoofWare.Expect.DiffOperation`1.get_Tag [method]: unit -> int
+WoofWare.Expect.DiffOperation`1.IsDelete [property]: [read-only] bool
+WoofWare.Expect.DiffOperation`1.IsInsert [property]: [read-only] bool
+WoofWare.Expect.DiffOperation`1.IsMatch [property]: [read-only] bool
+WoofWare.Expect.DiffOperation`1.NewDelete [static method]: (int, 'line) -> 'line WoofWare.Expect.DiffOperation
+WoofWare.Expect.DiffOperation`1.NewInsert [static method]: (int, 'line) -> 'line WoofWare.Expect.DiffOperation
+WoofWare.Expect.DiffOperation`1.NewMatch [static method]: (int, int, 'line) -> 'line WoofWare.Expect.DiffOperation
+WoofWare.Expect.DiffOperation`1.Tag [property]: [read-only] int
 WoofWare.Expect.Dot inherit obj
 WoofWare.Expect.Dot+IFileSystem - interface with 3 member(s)
 WoofWare.Expect.Dot+IFileSystem.DeleteFile [method]: string -> unit
