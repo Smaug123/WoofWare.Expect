@@ -1,5 +1,7 @@
 namespace WoofWare.Expect
 
+// This file mostly courtesy of Claude 4 Opus.
+
 open Fantomas.FCS.Diagnostics
 open Fantomas.FCS.Syntax
 open Fantomas.FCS.Text
@@ -22,7 +24,7 @@ module internal AstWalker =
     /// Returns the identifier that is the snapshot invocation, and its range.
     let private isSnapshotCall (funcExpr : SynExpr) : (string * Range) option =
         match funcExpr with
-        | SynExpr.Ident (ident) when snapshotSignifier.Contains ident.idText -> Some (ident.idText, ident.idRange)
+        | SynExpr.Ident ident when snapshotSignifier.Contains ident.idText -> Some (ident.idText, ident.idRange)
         | SynExpr.LongIdent (_, longIdent, _, _) ->
             match longIdent.IdentsWithTrivia with
             | [] -> None
@@ -59,7 +61,7 @@ module internal AstWalker =
                                 Keyword = keyword
                             }
                         ] // Text will be extracted separately
-                    | SynExpr.ArrayOrListComputed (isArray, innerExpr, argRange) when not isArray ->
+                    | SynExpr.ArrayOrListComputed (isArray, _inner, argRange) when not isArray ->
                         // It's a list comprehension
                         [
                             {
@@ -171,30 +173,6 @@ module internal AstWalker =
                 findInModuleDecls targetLine methodName decls
         )
 
-    /// Extract the exact text from source given a range
-    let extractTextFromSource (sourceText : string) (range : Range) : string =
-        let lines = sourceText.Split ('\n')
-
-        if range.StartLine = range.EndLine then
-            // Single line
-            let line = lines.[range.StartLine - 1]
-            line.Substring (range.StartColumn, range.EndColumn - range.StartColumn)
-        else
-            // Multi-line
-            let firstLine = lines.[range.StartLine - 1].Substring (range.StartColumn)
-
-            let middleLines =
-                if range.EndLine - range.StartLine > 1 then
-                    lines.[range.StartLine .. range.EndLine - 2] |> String.concat "\n"
-                else
-                    ""
-
-            let lastLine = lines.[range.EndLine - 1].Substring (0, range.EndColumn)
-
-            [ firstLine ; middleLines ; lastLine ]
-            |> List.filter (fun s -> s <> "")
-            |> String.concat "\n"
-
     /// Main function to find snapshot list locations
     let findSnapshotList
         (infoFilePath : string)
@@ -213,7 +191,7 @@ module internal AstWalker =
             diagnostics
             |> List.exists (fun d -> d.Severity = FSharpDiagnosticSeverity.Error)
         then
-            failwithf "Parse errors in file %s: %A" infoFilePath diagnostics
+            failwithf $"Parse errors in file %s{infoFilePath}: %A{diagnostics}"
 
         // Walk the AST
         let results =
