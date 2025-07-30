@@ -6,8 +6,6 @@ WoofWare.Expect.Builder.get_expect [static method]: unit -> WoofWare.Expect.Expe
 WoofWare.Expect.Builder.get_expect' [static method]: unit -> WoofWare.Expect.ExpectBuilder
 WoofWare.Expect.CallerInfo inherit obj, implements WoofWare.Expect.CallerInfo System.IEquatable, System.Collections.IStructuralEquatable, WoofWare.Expect.CallerInfo System.IComparable, System.IComparable, System.Collections.IStructuralComparable
 WoofWare.Expect.CallerInfo.Equals [method]: (WoofWare.Expect.CallerInfo, System.Collections.IEqualityComparer) -> bool
-WoofWare.Expect.CompletedSnapshot inherit obj, implements WoofWare.Expect.CompletedSnapshot System.IEquatable, System.Collections.IStructuralEquatable, WoofWare.Expect.CompletedSnapshot System.IComparable, System.IComparable, System.Collections.IStructuralComparable
-WoofWare.Expect.CompletedSnapshot.Equals [method]: (WoofWare.Expect.CompletedSnapshot, System.Collections.IEqualityComparer) -> bool
 WoofWare.Expect.Diff'`1 inherit obj, implements 'line WoofWare.Expect.Diff' System.IEquatable, System.Collections.IStructuralEquatable, 'line WoofWare.Expect.Diff' System.IComparable, System.IComparable, System.Collections.IStructuralComparable
 WoofWare.Expect.Diff'`1.Equals [method]: ('line WoofWare.Expect.Diff', System.Collections.IEqualityComparer) -> bool
 WoofWare.Expect.DiffModule inherit obj
@@ -74,18 +72,28 @@ WoofWare.Expect.ExpectBuilder inherit obj
 WoofWare.Expect.ExpectBuilder..ctor [constructor]: (string * int)
 WoofWare.Expect.ExpectBuilder..ctor [constructor]: bool
 WoofWare.Expect.ExpectBuilder..ctor [constructor]: WoofWare.Expect.Mode
+WoofWare.Expect.ExpectBuilder.Bind [method]: ('elt WoofWare.Expect.ExpectStateListy, unit -> #('elt seq) WoofWare.Expect.ExpectState) -> 'elt WoofWare.Expect.ExpectStateListy
 WoofWare.Expect.ExpectBuilder.Bind [method]: ('U WoofWare.Expect.ExpectState, unit -> 'U WoofWare.Expect.ExpectState) -> 'U WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectBuilder.Bind [method]: ('U WoofWare.Expect.ExpectStateListy, unit -> 'U WoofWare.Expect.ExpectStateListy) -> 'U WoofWare.Expect.ExpectStateListy
 WoofWare.Expect.ExpectBuilder.Delay [method]: (unit -> 'T WoofWare.Expect.ExpectState) -> (unit -> 'T WoofWare.Expect.ExpectState)
+WoofWare.Expect.ExpectBuilder.Delay [method]: (unit -> 'T WoofWare.Expect.ExpectStateListy) -> (unit -> 'T WoofWare.Expect.ExpectStateListy)
 WoofWare.Expect.ExpectBuilder.Return [method]: 'T -> 'T WoofWare.Expect.ExpectState
-WoofWare.Expect.ExpectBuilder.Return [method]: unit -> 'T WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectBuilder.Return [method]: unit -> 'T WoofWare.Expect.ExpectStateListy
 WoofWare.Expect.ExpectBuilder.ReturnFrom [method]: (unit -> 'T) -> 'T WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.Run [method]: (unit -> 'T WoofWare.Expect.ExpectState) -> unit
+WoofWare.Expect.ExpectBuilder.Run [method]: (unit -> 'T WoofWare.Expect.ExpectStateListy) -> unit
 WoofWare.Expect.ExpectBuilder.Snapshot [method]: ('a WoofWare.Expect.ExpectState, string, string option, int option, string option) -> 'a WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectBuilder.Snapshot [method]: ('a WoofWare.Expect.ExpectStateListy, string, string option, int option, string option) -> 'a WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.SnapshotJson [method]: (unit WoofWare.Expect.ExpectState, string, string option, int option, string option) -> 'a WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectBuilder.SnapshotJson [method]: (unit WoofWare.Expect.ExpectStateListy, string, string option, int option, string option) -> 'a WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectBuilder.SnapshotList [method]: (unit WoofWare.Expect.ExpectStateListy, string list, string option, int option, string option) -> 'a WoofWare.Expect.ExpectStateListy
 WoofWare.Expect.ExpectBuilder.SnapshotThrows [method]: ('a WoofWare.Expect.ExpectState, string, string option, int option, string option) -> 'a WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectBuilder.SnapshotThrows [method]: ('a WoofWare.Expect.ExpectStateListy, string, string option, int option, string option) -> 'a WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.WithFormat [method]: ('T WoofWare.Expect.ExpectState, 'T -> string) -> 'T WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectBuilder.WithFormat [method]: ('T WoofWare.Expect.ExpectStateListy, 'T -> string) -> 'T WoofWare.Expect.ExpectStateListy
 WoofWare.Expect.ExpectBuilder.WithJsonDocOptions [method]: ('T WoofWare.Expect.ExpectState, System.Text.Json.JsonDocumentOptions) -> 'T WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectBuilder.WithJsonSerializerOptions [method]: ('T WoofWare.Expect.ExpectState, System.Text.Json.JsonSerializerOptions) -> 'T WoofWare.Expect.ExpectState
+WoofWare.Expect.ExpectBuilder.WithJsonSerializerOptions [method]: ('T WoofWare.Expect.ExpectStateListy, System.Text.Json.JsonSerializerOptions) -> 'T WoofWare.Expect.ExpectState
 WoofWare.Expect.ExpectException inherit System.Exception, implements System.Collections.IStructuralEquatable
 WoofWare.Expect.ExpectException..ctor [constructor]: string
 WoofWare.Expect.ExpectException..ctor [constructor]: unit
@@ -93,6 +101,7 @@ WoofWare.Expect.ExpectException.Equals [method]: (System.Exception, System.Colle
 WoofWare.Expect.ExpectException.Equals [method]: System.Exception -> bool
 WoofWare.Expect.ExpectException.Message [property]: [read-only] string
 WoofWare.Expect.ExpectState`1 inherit obj
+WoofWare.Expect.ExpectStateListy`1 inherit obj
 WoofWare.Expect.GlobalBuilderConfig inherit obj
 WoofWare.Expect.GlobalBuilderConfig.clearTests [static method]: unit -> unit
 WoofWare.Expect.GlobalBuilderConfig.enterBulkUpdateMode [static method]: unit -> unit

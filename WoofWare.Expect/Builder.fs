@@ -1,5 +1,6 @@
 ﻿namespace WoofWare.Expect
 
+open System.Collections.Generic
 open System.IO
 open System.Runtime.CompilerServices
 open System.Text.Json
@@ -31,6 +32,61 @@ type ExpectBuilder (mode : Mode) =
             ExpectBuilder Mode.Update
         else
             ExpectBuilder Mode.Assert
+
+    /// Combine two `ExpectStateListy`s. The first one is the "expected" snapshot; the second is the "actual".
+    member _.Bind<'U> (state : ExpectStateListy<'U>, f : unit -> ExpectStateListy<'U>) : ExpectStateListy<'U> =
+        let actual = f ()
+
+        match state.Actual with
+        | Some _ -> failwith "somehow came in with an Actual"
+        | None ->
+
+        match actual.Snapshot with
+        | Some _ -> failwith "somehow Actual came through with a Snapshot"
+        | None ->
+
+        let formatter =
+            match state.Formatter, actual.Formatter with
+            | None, f -> f
+            | Some f, None -> Some f
+            | Some _, Some _ -> failwith "multiple formatters supplied for a single expect!"
+
+        {
+            Formatter = formatter
+            Snapshot = state.Snapshot
+            Actual = actual.Actual
+        }
+
+    /// Combine an `ExpectStateListy` with an `ExpectState`. The first one is the "expected" snapshot; the second is
+    /// the "actual".
+    member _.Bind<'U, 'elt when 'U :> IEnumerable<'elt>>
+        (state : ExpectStateListy<'elt>, f : unit -> ExpectState<'U>)
+        : ExpectStateListy<'elt>
+        =
+        let actual = f ()
+
+        match state.Actual with
+        | Some _ -> failwith "somehow came in with an Actual"
+        | None ->
+
+        match actual.Snapshot with
+        | Some _ -> failwith "somehow Actual came through with a Snapshot"
+        | None ->
+
+        let formatter : ((unit -> 'elt) -> string) option =
+            match state.Formatter, actual.Formatter with
+            | None, None -> None
+            | None, Some _ ->
+                failwith
+                    "unexpectedly had a formatter supplied before the snapshotList keyword; I thought this was impossible"
+            | Some f, None -> Some f
+            | Some _, Some _ -> failwith "multiple formatters supplied for a single expect!"
+
+        {
+            Formatter = formatter
+            Snapshot = state.Snapshot
+            Actual = actual.Actual |> Option.map (fun f () -> Seq.cast<'elt> (f ()))
+        }
 
     /// Combine two `ExpectState`s. The first one is the "expected" snapshot; the second is the "actual".
     member _.Bind<'U> (state : ExpectState<'U>, f : unit -> ExpectState<'U>) : ExpectState<'U> =
@@ -75,6 +131,40 @@ type ExpectBuilder (mode : Mode) =
     [<CustomOperation("snapshot", MaintainsVariableSpaceUsingBind = true)>]
     member _.Snapshot<'a>
         (
+            state : ExpectStateListy<'a>,
+            snapshot : string,
+            [<CallerMemberName>] ?memberName : string,
+            [<CallerLineNumber>] ?callerLine : int,
+            [<CallerFilePath>] ?filePath : string
+        )
+        : ExpectState<'a>
+        =
+        match state.Snapshot with
+        | Some _ -> failwith "snapshot can only be specified once"
+        | None ->
+            let memberName = defaultArg memberName "<unknown method>"
+            let filePath = defaultArg filePath "<unknown file>"
+            let lineNumber = defaultArg callerLine -1
+
+            let callerInfo =
+                {
+                    MemberName = memberName
+                    FilePath = filePath
+                    LineNumber = lineNumber
+                }
+
+            {
+                Formatter = state.Formatter
+                JsonSerialiserOptions = None
+                JsonDocOptions = None
+                Snapshot = Some (SnapshotValue.Formatted snapshot, callerInfo)
+                Actual = None
+            }
+
+    /// <summary>Express that the actual value's <c>ToString</c> should identically equal this string.</summary>
+    [<CustomOperation("snapshot", MaintainsVariableSpaceUsingBind = true)>]
+    member _.Snapshot<'a>
+        (
             state : ExpectState<'a>,
             snapshot : string,
             [<CallerMemberName>] ?memberName : string,
@@ -99,6 +189,46 @@ type ExpectBuilder (mode : Mode) =
 
             { state with
                 Snapshot = Some (SnapshotValue.Formatted snapshot, callerInfo)
+                Actual = None
+            }
+
+    /// <summary>
+    /// Express that the actual value, when converted to JSON, should result in a JSON document
+    /// which matches the JSON document that is this string.
+    /// </summary>
+    /// <remarks>
+    /// For example, <c>snapshotJson "123"</c> indicates the JSON integer 123.
+    /// </remarks>
+    [<CustomOperation("snapshotJson", MaintainsVariableSpaceUsingBind = true)>]
+    member this.SnapshotJson<'a>
+        (
+            state : ExpectStateListy<unit>,
+            snapshot : string,
+            [<CallerMemberName>] ?memberName : string,
+            [<CallerLineNumber>] ?callerLine : int,
+            [<CallerFilePath>] ?filePath : string
+        )
+        : ExpectState<'a>
+        =
+        match state.Snapshot with
+        | Some _ -> failwith "snapshot can only be specified once"
+        | None ->
+            let memberName = defaultArg memberName "<unknown method>"
+            let filePath = defaultArg filePath "<unknown file>"
+            let lineNumber = defaultArg callerLine -1
+
+            let callerInfo =
+                {
+                    MemberName = memberName
+                    FilePath = filePath
+                    LineNumber = lineNumber
+                }
+
+            {
+                Formatter = None
+                JsonSerialiserOptions = None
+                JsonDocOptions = None
+                Snapshot = Some (SnapshotValue.Json snapshot, callerInfo)
                 Actual = None
             }
 
@@ -139,6 +269,45 @@ type ExpectBuilder (mode : Mode) =
                 JsonSerialiserOptions = state.JsonSerialiserOptions
                 JsonDocOptions = state.JsonDocOptions
                 Snapshot = Some (SnapshotValue.Json snapshot, callerInfo)
+                Actual = None
+            }
+
+    /// <summary>
+    /// Express that the actual value, which is a sequence, should have elements which individually (in order) match
+    /// this snapshot list.
+    /// </summary>
+    /// <remarks>
+    /// For example, <c>snapshotList ["123" ; "456"]</c> indicates an exactly-two-element list <c>[123 ; 456]</c>.
+    /// </remarks>
+    [<CustomOperation("snapshotList", MaintainsVariableSpaceUsingBind = true)>]
+    member _.SnapshotList<'a>
+        (
+            state : ExpectStateListy<unit>,
+            snapshot : string list,
+            [<CallerMemberName>] ?memberName : string,
+            [<CallerLineNumber>] ?callerLine : int,
+            [<CallerFilePath>] ?filePath : string
+        )
+        : ExpectStateListy<'a>
+        =
+
+        match state.Snapshot with
+        | Some _ -> failwith "snapshot can only be specified once"
+        | None ->
+            let memberName = defaultArg memberName "<unknown method>"
+            let filePath = defaultArg filePath "<unknown file>"
+            let lineNumber = defaultArg callerLine -1
+
+            let callerInfo =
+                {
+                    MemberName = memberName
+                    FilePath = filePath
+                    LineNumber = lineNumber
+                }
+
+            {
+                Formatter = None
+                Snapshot = Some (snapshot, callerInfo)
                 Actual = None
             }
 
@@ -188,15 +357,76 @@ type ExpectBuilder (mode : Mode) =
             }
 
     /// <summary>
+    /// Expresses that the given expression throws during evaluation.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// expect {
+    ///     snapshotThrows @"System.Exception: oh no"
+    ///     return! (fun () -> failwith "oh no")
+    /// }
+    /// </code>
+    /// </example>
+    [<CustomOperation("snapshotThrows", MaintainsVariableSpaceUsingBind = true)>]
+    member _.SnapshotThrows<'a>
+        (
+            state : ExpectStateListy<'a>,
+            snapshot : string,
+            [<CallerMemberName>] ?memberName : string,
+            [<CallerLineNumber>] ?callerLine : int,
+            [<CallerFilePath>] ?filePath : string
+        )
+        : ExpectState<'a>
+        =
+        match state.Snapshot with
+        | Some _ -> failwith "snapshot can only be specified once"
+        | None ->
+
+            let memberName = defaultArg memberName "<unknown method>"
+            let filePath = defaultArg filePath "<unknown file>"
+            let lineNumber = defaultArg callerLine -1
+
+            let callerInfo =
+                {
+                    MemberName = memberName
+                    FilePath = filePath
+                    LineNumber = lineNumber
+                }
+
+            {
+                Formatter = None
+                JsonSerialiserOptions = None
+                JsonDocOptions = None
+                Snapshot = Some (SnapshotValue.ThrowsException snapshot, callerInfo)
+                Actual = None
+            }
+
+    /// <summary>
     /// Express that the <c>return</c> value of this builder should be formatted using this function, before
     /// comparing to the snapshot.
-    /// this value.
     /// </summary>
     /// <remarks>
     /// For example, <c>withFormat (fun x -> x.ToString ()) "123"</c> is equivalent to <c>snapshot "123"</c>.
     /// </remarks>
     [<CustomOperation("withFormat", MaintainsVariableSpaceUsingBind = true)>]
     member _.WithFormat<'T> (state : ExpectState<'T>, formatter : 'T -> string) =
+        match state.Formatter with
+        | Some _ -> failwith "Please don't supply withFormat more than once"
+        | None ->
+            { state with
+                Formatter = Some (fun f -> f () |> formatter)
+            }
+
+    /// <summary>
+    /// Express that the <c>return</c> value of this builder should be formatted using this function, before
+    /// comparing to the snapshot.
+    /// In the case of <c>snapshotList</c>, this applies to the elements of the sequence, not to the sequence itself.
+    /// </summary>
+    /// <remarks>
+    /// For example, <c>withFormat (fun x -> x.ToString ()) "123"</c> is equivalent to <c>snapshot "123"</c>.
+    /// </remarks>
+    [<CustomOperation("withFormat", MaintainsVariableSpaceUsingBind = true)>]
+    member _.WithFormat<'T> (state : ExpectStateListy<'T>, formatter : 'T -> string) =
         match state.Formatter with
         | Some _ -> failwith "Please don't supply withFormat more than once"
         | None ->
@@ -226,6 +456,42 @@ type ExpectBuilder (mode : Mode) =
             { state with
                 JsonSerialiserOptions = Some jsonOptions
             }
+
+    /// <summary>
+    /// Express that these JsonSerializerOptions should be used to construct the JSON object to which the snapshot
+    /// is to be compared (or, in write-out-the-snapshot mode, to construct the JSON object to be written out).
+    /// </summary>
+    /// <example>
+    /// If you want your snapshots to be written out compactly, rather than the default indenting:
+    /// <code>
+    /// expect {
+    ///     snapshotJson @"{""a"":3}"
+    ///     withJsonSerializerOptions (JsonSerializerOptions (WriteIndented = false))
+    ///     return Map.ofList ["a", 3]
+    /// }
+    /// </code>
+    /// </example>
+    [<CustomOperation("withJsonSerializerOptions", MaintainsVariableSpaceUsingBind = true)>]
+    member _.WithJsonSerializerOptions<'T> (state : ExpectStateListy<'T>, jsonOptions : JsonSerializerOptions) =
+        match state.Snapshot with
+        | Some _ ->
+            failwith
+                "I don't know how you've managed to do this; please raise an issue against github.com/Smaug123/WoofWare.Expect . Somehow withJsonSerializerOptions has already got a snapshot."
+        | None ->
+
+        match state.Actual with
+        | Some _ ->
+            failwith
+                "I don't know how you've managed to do this; please raise an issue against github.com/Smaug123/WoofWare.Expect . Somehow withJsonSerializerOptions has already got an expected-value."
+        | None ->
+
+        {
+            Formatter = state.Formatter
+            JsonSerialiserOptions = Some jsonOptions
+            JsonDocOptions = None
+            Snapshot = None
+            Actual = None
+        }
 
     /// <summary>
     /// Express that these JsonDocumentOptions should be used when parsing the snapshot string into a JSON object.
@@ -258,23 +524,21 @@ type ExpectBuilder (mode : Mode) =
             }
 
     /// MaintainsVariableSpaceUsingBind causes this to be used; it's a dummy representing "no snapshot and no assertion".
-    member _.Return (() : unit) : ExpectState<'T> =
+    member _.Return (() : unit) : ExpectStateListy<'T> =
         {
             Formatter = None
-            JsonSerialiserOptions = None
-            JsonDocOptions = None
             Snapshot = None
             Actual = None
         }
 
     /// Expresses the "actual value" component of the assertion "expected snapshot = actual value".
-    member _.Return (value : 'T) : ExpectState<'T> =
+    member _.Return<'T> (value : 'T) : ExpectState<'T> =
         {
             Snapshot = None
             Formatter = None
-            JsonDocOptions = None
-            JsonSerialiserOptions = None
             Actual = Some (fun () -> value)
+            JsonSerialiserOptions = None
+            JsonDocOptions = None
         }
 
     /// Expresses the "actual value" component of the assertion "expected snapshot = actual value", but delayed behind
@@ -290,6 +554,56 @@ type ExpectBuilder (mode : Mode) =
 
     /// Computation expression `Delay`.
     member _.Delay (f : unit -> ExpectState<'T>) : unit -> ExpectState<'T> = f
+
+    /// Computation expression `Delay`.
+    member _.Delay (f : unit -> ExpectStateListy<'T>) : unit -> ExpectStateListy<'T> = f
+
+    /// Computation expression `Run`, which runs a `Delay`ed snapshot assertion, throwing if the assertion fails.
+    member _.Run (f : unit -> ExpectStateListy<'T>) : unit =
+        let state = f () |> CompletedListSnapshotGeneric.make
+
+        let lines = lazy File.ReadAllLines state.Caller.FilePath
+
+        let listSource =
+            lazy
+                AstWalker.findSnapshotList
+                    state.Caller.FilePath
+                    (lines.Force ())
+                    state.Caller.LineNumber
+                    state.Caller.MemberName
+
+        let raiseError expected actual =
+            let diff =
+                Diff.patienceLines (Array.ofList expected) (Array.ofList actual) |> Diff.format
+
+            match mode with
+            | Mode.Assert ->
+                if GlobalBuilderConfig.isBulkUpdateMode () then
+                    GlobalBuilderConfig.registerTest (CompletedSnapshot.makeFromAst (listSource.Force ()) state)
+                else
+                    $"snapshot mismatch! snapshot at %s{state.Caller.FilePath}:%i{state.Caller.LineNumber} (%s{state.Caller.MemberName}) diff:\n%s{diff}"
+                    |> ExpectException
+                    |> raise
+            | Mode.AssertMockingSource (mockSource, line) ->
+                $"snapshot mismatch! snapshot at %s{mockSource}:%i{line} (%s{state.Caller.MemberName}) diff:\n%s{diff}"
+                |> ExpectException
+                |> raise
+            | Mode.Update ->
+                let lines = lines.Force ()
+                let listSource = listSource.Force ()
+                let result = SnapshotUpdate.updateAtLocation listSource lines actual
+                File.writeAllLines result state.Caller.FilePath
+                failwith ("Snapshot successfully updated. Previous contents:\n" + String.concat "\n" lines)
+
+        match CompletedListSnapshotGeneric.passesAssertion state with
+        | None ->
+            match mode, GlobalBuilderConfig.isBulkUpdateMode () with
+            | Mode.Update, _
+            | _, true ->
+                failwith
+                    "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a single snapshot; disable `GlobalBuilderConfig.bulkUpdate` to move back to assertion-checking mode."
+            | _ -> ()
+        | Some (expected, actual) -> raiseError expected actual
 
     /// Computation expression `Run`, which runs a `Delay`ed snapshot assertion, throwing if the assertion fails.
     member _.Run (f : unit -> ExpectState<'T>) : unit =
@@ -310,7 +624,7 @@ type ExpectBuilder (mode : Mode) =
                 |> raise
             | Mode.Assert ->
                 if GlobalBuilderConfig.isBulkUpdateMode () then
-                    GlobalBuilderConfig.registerTest state
+                    GlobalBuilderConfig.registerTest (CompletedSnapshot.makeGuess state)
                 else
                     let diff = Diff.patience snapshot actual
 

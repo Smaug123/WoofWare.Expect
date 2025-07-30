@@ -21,6 +21,7 @@
         <Compile Include="File.fs" />
         <Compile Include="Diff.fs" />
         <Compile Include="Dot.fs" />
+        <Compile Include="AstWalker.fs" />
         <Compile Include="Domain.fs" />
         <Compile Include="SnapshotUpdate.fs" />
         <Compile Include="Config.fs" />
@@ -39,8 +40,9 @@
 
     <ItemGroup>
       <!-- FSharp.SystemTextJson requires at least this version -->
-      <PackageReference Update="FSharp.Core" Version="4.7.0" />
+      <PackageReference Update="FSharp.Core" Version="8.0.100" />
       <PackageReference Include="FSharp.SystemTextJson" Version="1.4.36" />
+      <PackageReference Include="Fantomas.FCS" Version="7.0.3" />
       <!-- Needed for DeepEquals -->
       <PackageReference Include="System.Text.Json" Version="9.0.0" />
     </ItemGroup>

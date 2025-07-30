@@ -298,6 +298,27 @@ module internal SnapshotUpdate =
         |> Seq.sortByDescending fst
         |> Seq.fold (fun lines (lineNum, replacement) -> updateSnapshotAtLine lines lineNum replacement) fileLines
 
+    let internal updateAtLocation (source : SnapshotLocation) (lines : string[]) (actual : string seq) =
+        let indent = String.replicate source.KeywordRange.StartColumn " "
+
+        [|
+            // Range's lines are one-indexed!
+            lines.[0 .. source.KeywordRange.EndLine - 2]
+            [|
+                lines.[source.KeywordRange.EndLine - 1].Substring (0, source.KeywordRange.EndColumn)
+                + " ["
+            |]
+            actual |> Seq.map (fun s -> indent + "    " + stringLiteral s) |> Array.ofSeq
+            [|
+                indent
+                + "]"
+                + lines.[source.ReplacementRange.EndLine - 1].Substring source.ReplacementRange.EndColumn
+            |]
+            lines.[source.ReplacementRange.EndLine ..]
+        |]
+        |> Array.concat
+
+
     /// <summary>
     /// Update every failed snapshot in the input, editing the files on disk.
     /// </summary>
@@ -307,10 +328,19 @@ module internal SnapshotUpdate =
         |> Seq.iter (fun (callerFile, callers) ->
             let contents = System.IO.File.ReadAllLines callerFile
 
-            let sources =
-                callers |> Seq.map (fun csc -> csc.CallerInfo.LineNumber, csc.Replacement)
-
-            let newContents = updateAllLines contents sources
+            let newContents =
+                callers
+                |> Seq.map (fun csc -> csc.CallerInfo.LineNumber, csc)
+                |> Seq.sortByDescending fst
+                |> Seq.fold
+                    (fun lines (lineNum, replacement) ->
+                        match replacement with
+                        | CompletedSnapshot.GuessString (_, replacement) ->
+                            updateSnapshotAtLine lines lineNum replacement
+                        | CompletedSnapshot.Known (_, replacement, snapshotLocation) ->
+                            updateAtLocation snapshotLocation lines replacement
+                    )
+                    contents
 
             File.writeAllLines newContents callerFile
         )
