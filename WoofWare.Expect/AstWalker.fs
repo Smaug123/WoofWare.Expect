@@ -4,11 +4,11 @@ open Fantomas.FCS.Diagnostics
 open Fantomas.FCS.Syntax
 open Fantomas.FCS.Text
 
-type internal SnapshotListLocation =
+type internal SnapshotLocation =
     {
         KeywordRange : Range
         Keyword : string
-        ListRange : Range
+        ReplacementRange : Range
     }
 
 [<RequireQualifiedAccess>]
@@ -42,12 +42,7 @@ module internal AstWalker =
         | _ -> None
 
     /// Walk expressions looking for our target
-    let rec findSnapshotListCalls
-        (targetLine : int)
-        (methodName : string)
-        (expr : SynExpr)
-        : SnapshotListLocation list
-        =
+    let rec findSnapshotListCalls (targetLine : int) (methodName : string) (expr : SynExpr) : SnapshotLocation list =
         match expr with
         // Direct method application
         | SynExpr.App (_, _, funcExpr, argExpr, range) ->
@@ -59,7 +54,7 @@ module internal AstWalker =
                         // It's a list literal
                         [
                             {
-                                ListRange = argRange
+                                ReplacementRange = argRange
                                 KeywordRange = keywordRange
                                 Keyword = keyword
                             }
@@ -68,7 +63,7 @@ module internal AstWalker =
                         // It's a list comprehension
                         [
                             {
-                                ListRange = argRange
+                                ReplacementRange = argRange
                                 KeywordRange = keywordRange
                                 Keyword = keyword
                             }
@@ -77,7 +72,7 @@ module internal AstWalker =
                         // It could be a variable reference or other expression
                         [
                             {
-                                ListRange = argExpr.Range
+                                ReplacementRange = argExpr.Range
                                 KeywordRange = keywordRange
                                 Keyword = keyword
                             }
@@ -172,7 +167,8 @@ module internal AstWalker =
             | SynModuleDecl.ModuleAbbrev _
             | SynModuleDecl.Exception _
             | SynModuleDecl.Open _ -> []
-            | SynModuleDecl.NamespaceFragment fragment -> failwith "todo"
+            | SynModuleDecl.NamespaceFragment (SynModuleOrNamespace (decls = decls)) ->
+                findInModuleDecls targetLine methodName decls
         )
 
     /// Extract the exact text from source given a range
@@ -205,7 +201,7 @@ module internal AstWalker =
         (lines : string[])
         (lineNumber : int)
         (methodName : string) // e.g., "snapshotList"
-        : SnapshotListLocation
+        : SnapshotLocation
         =
         let sourceText = SourceText.ofString (String.concat "\n" lines)
 

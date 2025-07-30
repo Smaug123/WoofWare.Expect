@@ -43,8 +43,7 @@ module GlobalBuilderConfig =
     /// </remarks>
     let clearTests () = lock locker allTests.Clear
 
-    let internal registerTest (s : CompletedSnapshotGeneric<'T>) : unit =
-        let toAdd = s |> CompletedSnapshot.make
+    let internal registerTest (toAdd : CompletedSnapshot) : unit =
         lock locker (fun () -> allTests.Add toAdd)
 
     /// <summary>

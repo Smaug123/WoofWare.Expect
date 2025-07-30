@@ -31,7 +31,7 @@ open WoofWare.Expect
 module MyModule =
     let emoji () =
         expect {
-            snapshot @""Updated with 🚀🌟✨ more emoji!""
+            snapshot ""Updated with 🚀🌟✨ more emoji!""
             return 123
         }
 
@@ -172,7 +172,7 @@ module MyModule =
 
     let arabicRTL () =
         expect {
-            snapshot @""Updated Arabic: مرحبا بالعالم""
+            snapshot ""Updated Arabic: مرحبا بالعالم""
             return ""rtl test""
         }
 
@@ -241,7 +241,7 @@ module MyModule =
     let combiningCharacters () =
         expect {
             // Combining diacritics: e + ́ = é
-            snapshot @""updated test with combining: é and ä!""
+            snapshot ""updated test with combining: é and ä!""
             return ""combining""
         }
 
@@ -309,7 +309,7 @@ module MyModule =
 
     let mixedScripts () =
         expect {
-            snapshotJson @""Updated mixed: English, русский, 日本語, العربية, emoji 🚀""
+            snapshotJson ""Updated mixed: English, русский, 日本語, العربية, emoji 🚀""
             return [ ""multilingual"" ]
         }
 
@@ -377,7 +377,7 @@ module MyModule =
 
     let zeroWidthChars () =
         expect {
-            snapshot @""Updated: Zero​width​space​test"" // Contains U+200B
+            snapshot ""Updated: Zero​width​space​test"" // Contains U+200B
             return ""zwsp""
         }
 
@@ -445,7 +445,7 @@ module MyModule =
 
     let mathSymbols () =
         expect {
-            snapshot @""Pretty vacuous, huh: ∀x∈ℝ, ∃y: x² + y² = 1 ⟹ |x| ≤ 1""
+            snapshot ""Pretty vacuous, huh: ∀x∈ℝ, ∃y: x² + y² = 1 ⟹ |x| ≤ 1""
             return ""math""
         }
 "

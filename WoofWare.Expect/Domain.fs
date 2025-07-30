@@ -22,7 +22,6 @@ type private SnapshotValue =
 
 type private CompletedSnapshotValue<'T> =
     | Json of expected : string * JsonSerializerOptions * JsonDocumentOptions
-    | List of expected : string list * format : ((unit -> 'T seq) -> string)
     | Formatted of expected : string * format : ((unit -> 'T) -> string)
 
 /// The state accumulated by the `expect` builder. You should never find yourself interacting with this type.
@@ -36,6 +35,7 @@ type ExpectState<'T> =
             Actual : (unit -> 'T) option
         }
 
+/// The state accumulated by the `expect` builder. You should never find yourself interacting with this type.
 type ExpectStateListy<'T> =
     private
         {
@@ -111,12 +111,6 @@ module internal CompletedSnapshotGeneric =
             |> _.RootElement
             |> _.ToString()
         | CompletedSnapshotValue.Formatted (_existing, f) -> f s.Actual
-        | CompletedSnapshotValue.List (_existing, f) ->
-            s.Actual ()
-            |> unbox<IEnumerable>
-            |> Seq.cast
-            |> Seq.map (fun x -> f (fun () -> x))
-            |> String.concat ",\n"
 
     /// Returns None if the assertion passes, or Some (expected, actual) if the assertion fails.
     let internal passesAssertion (state : CompletedSnapshotGeneric<'T>) : (string * string) option =
@@ -141,31 +135,70 @@ module internal CompletedSnapshotGeneric =
                     Some (canonicalSnapshot.RootElement.ToString (), canonicalActual.RootElement.ToString ())
                 else
                     None
-        | CompletedSnapshotValue.List (expected, f) ->
-            let actual =
-                state.Actual ()
-                |> unbox<IEnumerable>
-                |> Seq.cast
-                |> Seq.map (fun x -> f (fun () -> x))
-                |> Seq.toList
 
-            if expected <> actual then
-                Some (expected |> String.concat ",\n", actual |> String.concat ",\n")
-            else
-                None
-
-/// Represents a snapshot test that has failed and is awaiting update or report to the user.
-type CompletedSnapshot =
-    internal
+type internal CompletedListSnapshotGeneric<'elt> =
+    private
         {
-            CallerInfo : CallerInfo
-            Replacement : string
+            Expected : string list
+            Format : 'elt -> string
+            Caller : CallerInfo
+            Actual : unit -> 'elt seq
         }
 
 [<RequireQualifiedAccess>]
-module internal CompletedSnapshot =
-    let make (s : CompletedSnapshotGeneric<'T>) =
+module internal CompletedListSnapshotGeneric =
+    let replacement (s : CompletedListSnapshotGeneric<'T>) =
+        s.Actual () |> unbox<IEnumerable> |> Seq.cast |> Seq.map s.Format |> Seq.toList
+
+    /// Returns None if the assertion passes, or Some (expected, actual) if the assertion fails.
+    let internal passesAssertion (state : CompletedListSnapshotGeneric<'T>) : (string list * string list) option =
+        let actual =
+            state.Actual ()
+            |> unbox<IEnumerable>
+            |> Seq.cast
+            |> Seq.map state.Format
+            |> Seq.toList
+
+        if state.Expected <> actual then
+            Some (state.Expected, actual)
+        else
+            None
+
+    let make (state : ExpectStateListy<'elt>) : CompletedListSnapshotGeneric<'elt> =
+        match state.Actual with
+        | None -> failwith "expected an assertion, but got none"
+        | Some actual ->
+
+        match state.Snapshot with
+        | None -> failwith "expected a snapshotList, but got none"
+        | Some (snapshot, caller) ->
+
+        let formatter =
+            match state.Formatter with
+            | Some f -> fun x -> f (fun () -> x)
+            | None -> fun x -> x.ToString ()
+
         {
-            CallerInfo = s.Caller
-            Replacement = CompletedSnapshotGeneric.replacement s
+            Expected = snapshot
+            Format = formatter
+            Caller = caller
+            Actual = actual
         }
+
+/// Represents a snapshot test that has failed and is awaiting update or report to the user.
+type internal CompletedSnapshot =
+    | GuessString of CallerInfo * replacement : string
+    | Known of CallerInfo * replacement : string list * SnapshotLocation
+
+    member this.CallerInfo =
+        match this with
+        | CompletedSnapshot.GuessString (c, _) -> c
+        | CompletedSnapshot.Known (c, _, _) -> c
+
+[<RequireQualifiedAccess>]
+module internal CompletedSnapshot =
+    let makeGuess (s : CompletedSnapshotGeneric<'T>) =
+        CompletedSnapshot.GuessString (s.Caller, CompletedSnapshotGeneric.replacement s)
+
+    let makeFromAst (source : SnapshotLocation) (s : CompletedListSnapshotGeneric<'elt>) =
+        CompletedSnapshot.Known (s.Caller, CompletedListSnapshotGeneric.replacement s, source)

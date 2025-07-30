@@ -31,7 +31,7 @@ open WoofWare.Expect
 module MyModule =
     let emptyString () =
         expect {
-            snapshot @""now has content""
+            snapshot ""now has content""
             return """"
         }
 
@@ -121,7 +121,7 @@ module MyModule =
 
     let emptyVerbatim () =
         expect {
-            snapshot @""now has content""
+            snapshot ""now has content""
             return """"
         }
 
@@ -211,7 +211,7 @@ module MyModule =
 
     let emptyTripleQuote () =
         expect {
-            snapshot @""now has content""
+            snapshot ""now has content""
             return """"
         }
 
@@ -301,7 +301,7 @@ module MyModule =
 
     let onlyWhitespace () =
         expect {
-            snapshot @""now has content""
+            snapshot ""now has content""
             return ""whitespace""
         }
 
@@ -575,7 +575,7 @@ module MyModule =
     let veryLongLine () =
         expect {
             snapshot
-                @""this line is short though""
+                ""this line is short though""
 
             return ""long line""
         }

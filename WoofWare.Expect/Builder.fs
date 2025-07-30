@@ -474,11 +474,15 @@ type ExpectBuilder (mode : Mode) =
     [<CustomOperation("withJsonSerializerOptions", MaintainsVariableSpaceUsingBind = true)>]
     member _.WithJsonSerializerOptions<'T> (state : ExpectStateListy<'T>, jsonOptions : JsonSerializerOptions) =
         match state.Snapshot with
-        | Some _ -> failwith "TODO describe this failure mode"
+        | Some _ ->
+            failwith
+                "I don't know how you've managed to do this; please raise an issue against github.com/Smaug123/WoofWare.Expect . Somehow withJsonSerializerOptions has already got a snapshot."
         | None ->
 
         match state.Actual with
-        | Some _ -> failwith "TODO describe this failure mode"
+        | Some _ ->
+            failwith
+                "I don't know how you've managed to do this; please raise an issue against github.com/Smaug123/WoofWare.Expect . Somehow withJsonSerializerOptions has already got an expected-value."
         | None ->
 
         {
@@ -556,72 +560,50 @@ type ExpectBuilder (mode : Mode) =
 
     /// Computation expression `Run`, which runs a `Delay`ed snapshot assertion, throwing if the assertion fails.
     member _.Run (f : unit -> ExpectStateListy<'T>) : unit =
-        let state = f ()
+        let state = f () |> CompletedListSnapshotGeneric.make
 
-        match state.Actual with
-        | None -> failwith "expected an assertion, but got none"
-        | Some actual ->
+        let lines = lazy File.ReadAllLines state.Caller.FilePath
 
-        let actual = actual () |> Seq.toList
+        let listSource =
+            lazy
+                AstWalker.findSnapshotList
+                    state.Caller.FilePath
+                    (lines.Force ())
+                    state.Caller.LineNumber
+                    state.Caller.MemberName
 
-        match state.Snapshot with
-        | None -> failwith "expected a snapshotList, but got none"
-        | Some (snapshot, caller) ->
-
-        let formatter =
-            match state.Formatter with
-            | Some f -> fun x -> f (fun () -> x)
-            | None -> fun x -> x.ToString ()
-
-        let actual = actual |> List.map formatter
-
-        if snapshot <> actual then
+        let raiseError expected actual =
             let diff =
-                Diff.patienceLines (Array.ofList snapshot) (Array.ofList actual) |> Diff.format
+                Diff.patienceLines (Array.ofList expected) (Array.ofList actual) |> Diff.format
 
             match mode with
             | Mode.Assert ->
                 if GlobalBuilderConfig.isBulkUpdateMode () then
-                    GlobalBuilderConfig.registerTest state
+                    GlobalBuilderConfig.registerTest (CompletedSnapshot.makeFromAst (listSource.Force ()) state)
                 else
-                    $"snapshot mismatch! snapshot at %s{caller.FilePath}:%i{caller.LineNumber} (%s{caller.MemberName}) diff:\n%s{diff}"
+                    $"snapshot mismatch! snapshot at %s{state.Caller.FilePath}:%i{state.Caller.LineNumber} (%s{state.Caller.MemberName}) diff:\n%s{diff}"
                     |> ExpectException
                     |> raise
             | Mode.AssertMockingSource (mockSource, line) ->
-                $"snapshot mismatch! snapshot at %s{mockSource}:%i{line} (%s{caller.MemberName}) diff:\n%s{diff}"
+                $"snapshot mismatch! snapshot at %s{mockSource}:%i{line} (%s{state.Caller.MemberName}) diff:\n%s{diff}"
                 |> ExpectException
                 |> raise
             | Mode.Update ->
-                let lines = File.ReadAllLines caller.FilePath
-                let oldContents = String.concat "\n" lines
+                let lines = lines.Force ()
+                let listSource = listSource.Force ()
+                let result = SnapshotUpdate.updateAtLocation listSource lines actual
+                File.writeAllLines result state.Caller.FilePath
+                failwith ("Snapshot successfully updated. Previous contents:\n" + String.concat "\n" lines)
 
-                let listSource =
-                    AstWalker.findSnapshotList caller.FilePath lines caller.LineNumber caller.MemberName
-
-                let indent = String.replicate listSource.KeywordRange.StartColumn " "
-
-                let result =
-                    [|
-                        // Range's lines are one-indexed!
-                        lines.[0 .. listSource.KeywordRange.EndLine - 2]
-                        [|
-                            lines.[listSource.KeywordRange.EndLine - 1].Substring (0, listSource.KeywordRange.EndColumn)
-                            + " ["
-                        |]
-                        actual
-                        |> Seq.map (fun s -> indent + "    " + SnapshotUpdate.stringLiteral s)
-                        |> Array.ofSeq
-                        [|
-                            indent
-                            + "]"
-                            + lines.[listSource.ListRange.EndLine - 1].Substring listSource.ListRange.EndColumn
-                        |]
-                        lines.[listSource.ListRange.EndLine ..]
-                    |]
-                    |> Array.concat
-
-                File.writeAllLines result caller.FilePath
-                failwith ("Snapshot successfully updated. Previous contents:\n" + oldContents)
+        match CompletedListSnapshotGeneric.passesAssertion state with
+        | None ->
+            match mode, GlobalBuilderConfig.isBulkUpdateMode () with
+            | Mode.Update, _
+            | _, true ->
+                failwith
+                    "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a single snapshot; disable `GlobalBuilderConfig.bulkUpdate` to move back to assertion-checking mode."
+            | _ -> ()
+        | Some (expected, actual) -> raiseError expected actual
 
     /// Computation expression `Run`, which runs a `Delay`ed snapshot assertion, throwing if the assertion fails.
     member _.Run (f : unit -> ExpectState<'T>) : unit =
@@ -642,7 +624,7 @@ type ExpectBuilder (mode : Mode) =
                 |> raise
             | Mode.Assert ->
                 if GlobalBuilderConfig.isBulkUpdateMode () then
-                    GlobalBuilderConfig.registerTest state
+                    GlobalBuilderConfig.registerTest (CompletedSnapshot.makeGuess state)
                 else
                     let diff = Diff.patience snapshot actual
 

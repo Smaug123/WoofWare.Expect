@@ -21,8 +21,8 @@
         <Compile Include="File.fs" />
         <Compile Include="Diff.fs" />
         <Compile Include="Dot.fs" />
-        <Compile Include="Domain.fs" />
         <Compile Include="AstWalker.fs" />
+        <Compile Include="Domain.fs" />
         <Compile Include="SnapshotUpdate.fs" />
         <Compile Include="Config.fs" />
         <Compile Include="Builder.fs" />
