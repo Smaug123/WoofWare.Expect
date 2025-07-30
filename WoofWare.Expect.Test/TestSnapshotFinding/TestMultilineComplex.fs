@@ -472,7 +472,7 @@ Sixth line""
 
     let windowsLineEndings () =
         expect {
-            snapshot @""down with line endings""
+            snapshot ""down with line endings""
             return ""crlf""
         }
 "
