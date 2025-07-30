@@ -32,7 +32,7 @@ open WoofWare.Expect
 module MyModule =
     let foo () =
         expect {
-            snapshot @""replacement""
+            snapshot ""replacement""
             return 123
         }
 "
@@ -81,7 +81,7 @@ open WoofWare.Expect
 module MyModule =
     let foo () =
         expect {
-            snapshot @""replacement""
+            snapshot ""replacement""
             return 123
         }
 "

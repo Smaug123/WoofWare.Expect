@@ -34,7 +34,7 @@ module MyModule =
         expect {
             snapshot (* first comment *) (* second comment *)
                 (* third comment on new line *)
-                @""updated after many comments""
+                ""updated after many comments""
 
             return 123
         }
@@ -100,7 +100,7 @@ module MyModule =
 
     let nestedComments () =
         expect {
-            snapshot (* outer (* inner *) comment *) @""updated after nested comments""
+            snapshot (* outer (* inner *) comment *) ""updated after nested comments""
             return ""nested""
         }
 
@@ -165,7 +165,7 @@ module MyModule =
 
     let commentWithSpecialChars () =
         expect {
-            snapshot (* comment with ""quotes"" and \ backslash *) @""updated after weird comment""
+            snapshot (* comment with ""quotes"" and \ backslash *) ""updated after weird comment""
             return ""special""
         }
 
@@ -233,7 +233,7 @@ module MyModule =
             snapshot
 
 
-                @""updated after spaces""
+                ""updated after spaces""
 
             return ""whitespace""
         }
@@ -301,7 +301,7 @@ module MyModule =
         expect {
             snapshotJson (* comment 1 *)
                 (* comment 2 *)
-                (* comment 3 *) @""updated after comments""
+                (* comment 3 *) ""updated after comments""
 
             return 123
         }
