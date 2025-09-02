@@ -205,9 +205,15 @@ module internal AstWalker =
             | ParsedInput.SigFile _ -> failwith "unexpected: signature files can't contain expressions"
 
         // Find the closest match
-        results
-        |> Seq.filter (fun loc ->
-            loc.KeywordRange.StartLine <= lineNumber
-            && lineNumber <= loc.KeywordRange.EndLine
-        )
-        |> Seq.exactlyOne
+        let matches =
+            results
+            |> List.filter (fun loc ->
+                loc.KeywordRange.StartLine <= lineNumber
+                && lineNumber <= loc.KeywordRange.EndLine
+            )
+
+        match matches with
+        | [] ->
+            failwith
+                $"Unexpectedly failed to locate snapshot keyword %s{methodName} at line %i{lineNumber} of file %s{infoFilePath}. Please report this along with the contents of the file."
+        | m :: _ -> m
