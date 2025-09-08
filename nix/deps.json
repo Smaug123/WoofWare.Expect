@@ -1,8 +1,8 @@
 [
   {
     "pname": "ApiSurface",
-    "version": "4.1.20",
-    "hash": "sha256-koWgO9FC9ax+Ij56ug8kxeyknl0yhLqnNLOUdxtqqo4="
+    "version": "5.0.1",
+    "hash": "sha256-0GMXEMFgWbbE2OGxW+6h4zGgQHg+IZy1aI13Dn97xSU="
   },
   {
     "pname": "fantomas",
@@ -68,11 +68,6 @@
     "pname": "Microsoft.NETCore.Platforms",
     "version": "1.1.1",
     "hash": "sha256-8hLiUKvy/YirCWlFwzdejD2Db3DaXhHxT7GSZx/znJg="
-  },
-  {
-    "pname": "Microsoft.NETCore.Platforms",
-    "version": "2.0.0",
-    "hash": "sha256-IEvBk6wUXSdyCnkj6tHahOJv290tVVT8tyemYcR0Yro="
   },
   {
     "pname": "Microsoft.NETCore.Targets",
@@ -141,33 +136,33 @@
   },
   {
     "pname": "NuGet.Common",
-    "version": "6.13.2",
-    "hash": "sha256-ASLa/Jigg5Eop0ZrXPl98RW2rxnJRC7pbbxhuV74hFw="
+    "version": "6.14.0",
+    "hash": "sha256-jDOwt3veI1GSG8CfBnf2+dJxD3E/Nmlc+vHtD4J76Ms="
   },
   {
     "pname": "NuGet.Configuration",
-    "version": "6.13.2",
-    "hash": "sha256-z8VW1YdRDanyyRTDYRvRkSv/XPR3c/hMM1y8cNNjx0Y="
+    "version": "6.14.0",
+    "hash": "sha256-1PN9s6fhCw3wd2260U6hQ4vG3jIvcG8GIn1oQgxMXA0="
   },
   {
     "pname": "NuGet.Frameworks",
-    "version": "6.13.2",
-    "hash": "sha256-caDyc+WgYOo43AUTjtbP0MyvYDb6JweEKDdIul61Cac="
+    "version": "6.14.0",
+    "hash": "sha256-3ViM3R1ucQMEL2hQYsivT86kI6veMQK2xDsiAcFcVQk="
   },
   {
     "pname": "NuGet.Packaging",
-    "version": "6.13.2",
-    "hash": "sha256-lhO+SFwIYZ4aPHxIGm5ubkkE2a5Ve2xgtroRbNh7hpw="
+    "version": "6.14.0",
+    "hash": "sha256-Yafbnxs3maj55bJ1oKQiZ0QkntFUzXdhorL94YEUOhY="
   },
   {
     "pname": "NuGet.Protocol",
-    "version": "6.13.2",
-    "hash": "sha256-5lnAHHZjy7A4vgv65AeBAs64mSNpuoUjxW3HnrMpuzY="
+    "version": "6.14.0",
+    "hash": "sha256-uLDKfs+QN1MdnuQtTES8qfNzzsmYKM6XB9pwJc4G+eo="
   },
   {
     "pname": "NuGet.Versioning",
-    "version": "6.13.2",
-    "hash": "sha256-gmpyBpKnt+GHqgx/2uFKp+J2csbxEAy1E7WdVT117sw="
+    "version": "6.14.0",
+    "hash": "sha256-DqdOJgsphKxSvqB8b60zNPCaiLfbiu3WnUJ/90feLrY="
   },
   {
     "pname": "NUnit",
@@ -225,24 +220,14 @@
     "hash": "sha256-KaMHgIRBF7Nf3VwOo+gJS1DcD+41cJDPWFh+TDQ8ee8="
   },
   {
-    "pname": "System.Formats.Asn1",
-    "version": "8.0.1",
-    "hash": "sha256-may/Wg+esmm1N14kQTG4ESMBi+GQKPp0ZrrBo/o6OXM="
-  },
-  {
     "pname": "System.IO.Abstractions",
-    "version": "4.2.13",
-    "hash": "sha256-nkC/PiqE6+c1HJ2yTwg3x+qdBh844Z8n3ERWDW8k6Gg="
+    "version": "22.0.15",
+    "hash": "sha256-2deBvDALOzd+BAnhdbnR7ZPjChE71HPv7w61/2tfYOg="
   },
   {
     "pname": "System.IO.Abstractions.TestingHelpers",
-    "version": "4.2.13",
-    "hash": "sha256-WGGatXlgyROnptdw0zU3ggf54eD/zusO/fvtf+5wuPU="
-  },
-  {
-    "pname": "System.IO.FileSystem.AccessControl",
-    "version": "4.5.0",
-    "hash": "sha256-ck44YBQ0M+2Im5dw0VjBgFD1s0XuY54cujrodjjSBL8="
+    "version": "22.0.15",
+    "hash": "sha256-JRm8yApCvhB/cvkPcm3+SKURhVB+ykF1u3IrxSJ7CLQ="
   },
   {
     "pname": "System.IO.Pipelines",
@@ -295,11 +280,6 @@
     "hash": "sha256-NyqqpRcHumzSxpsgRDguD5SGwdUNHBbo0OOdzLTIzCU="
   },
   {
-    "pname": "System.Security.AccessControl",
-    "version": "4.5.0",
-    "hash": "sha256-AFsKPb/nTk2/mqH/PYpaoI8PLsiKKimaXf+7Mb5VfPM="
-  },
-  {
     "pname": "System.Security.Cryptography.Pkcs",
     "version": "6.0.4",
     "hash": "sha256-2e0aRybote+OR66bHaNiYpF//4fCiaO3zbR2e9GABUI="
@@ -308,11 +288,6 @@
     "pname": "System.Security.Cryptography.ProtectedData",
     "version": "4.4.0",
     "hash": "sha256-Ri53QmFX8I8UH0x4PikQ1ZA07ZSnBUXStd5rBfGWFOE="
-  },
-  {
-    "pname": "System.Security.Principal.Windows",
-    "version": "4.5.0",
-    "hash": "sha256-BkUYNguz0e4NJp1kkW7aJBn3dyH9STwB5N8XqnlCsmY="
   },
   {
     "pname": "System.Text.Encodings.Web",
@@ -338,5 +313,25 @@
     "pname": "System.Threading.Tasks.Extensions",
     "version": "4.5.4",
     "hash": "sha256-owSpY8wHlsUXn5xrfYAiu847L6fAKethlvYx97Ri1ng="
+  },
+  {
+    "pname": "TestableIO.System.IO.Abstractions",
+    "version": "22.0.15",
+    "hash": "sha256-6YwnBfAnsxM0lEPB2LOFQcs7d1r7CyqjDEmvUBTz+X0="
+  },
+  {
+    "pname": "TestableIO.System.IO.Abstractions.TestingHelpers",
+    "version": "22.0.15",
+    "hash": "sha256-xEmfPBCtVVLc7K494cUuPXIYbUc/GPQlFC7UkDXP2jM="
+  },
+  {
+    "pname": "TestableIO.System.IO.Abstractions.Wrappers",
+    "version": "22.0.15",
+    "hash": "sha256-KoGuXGzecpf4rTmEth4/2goVFFR9V2aj+iibfZxpR7U="
+  },
+  {
+    "pname": "Testably.Abstractions.FileSystem.Interface",
+    "version": "9.0.0",
+    "hash": "sha256-6JW+qDtqQT9StP4oTR7uO0NnmVc2xcjSZ6ds2H71wtg="
   }
 ]
