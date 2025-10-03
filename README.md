@@ -211,4 +211,4 @@ Observe the `OneTimeSetUp` which sets global state to enter "bulk update" mode, 
 
 # Licence
 
-MIT.
+WoofWare.Expect is licensed to you under the MIT licence, a copy of which can be found at [LICENSE](./LICENSE).
