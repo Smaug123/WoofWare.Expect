@@ -3,7 +3,7 @@
     <PropertyGroup>
       <TargetFramework>netstandard2.0</TargetFramework>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
-      <Authors>Patrick Stevens</Authors>
+      <Authors>PatrickStevens</Authors>
       <Copyright>Copyright (c) Patrick Stevens 2025</Copyright>
       <Description>Snapshot/expect testing framework for F#</Description>
       <RepositoryType>git</RepositoryType>
