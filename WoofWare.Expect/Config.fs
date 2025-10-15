@@ -12,6 +12,8 @@ module GlobalBuilderConfig =
 
     let private allTests : ResizeArray<CompletedSnapshot> = ResizeArray ()
 
+    let private passingTests : ResizeArray<CallerInfo> = ResizeArray ()
+
     let internal isBulkUpdateMode () : bool =
         lock locker (fun () -> bulkUpdate.Value > 0)
 
@@ -41,10 +43,19 @@ module GlobalBuilderConfig =
     /// You probably don't need to do this, because your test runner is probably tearing down
     /// anyway after the tests have failed; this is mainly here for WoofWare.Expect's own internal testing.
     /// </remarks>
-    let clearTests () = lock locker allTests.Clear
+    let clearTests () =
+        lock
+            locker
+            (fun () ->
+                allTests.Clear ()
+                passingTests.Clear ()
+            )
 
     let internal registerTest (toAdd : CompletedSnapshot) : unit =
         lock locker (fun () -> allTests.Add toAdd)
+
+    let internal registerPassingTest (caller : CallerInfo) : unit =
+        lock locker (fun () -> passingTests.Add caller)
 
     /// <summary>
     /// For all tests whose failures have already been registered,
@@ -60,8 +71,14 @@ module GlobalBuilderConfig =
             locker
             (fun () ->
                 let allTests = Seq.toArray allTests
+                let passingTestsArray = Seq.toArray passingTests
 
                 try
+                    // Check if we only had passing tests in bulk update mode - this should be an error
+                    if allTests.Length = 0 && passingTestsArray.Length > 0 then
+                        failwith
+                            "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a single snapshot; disable `GlobalBuilderConfig.bulkUpdate` to move back to assertion-checking mode."
+
                     SnapshotUpdate.updateAll allTests
                 finally
                     // double acquiring of reentrant lock is OK, we're not switching threads

@@ -598,10 +598,13 @@ type ExpectBuilder (mode : Mode) =
         match CompletedListSnapshotGeneric.passesAssertion state with
         | None ->
             match mode, GlobalBuilderConfig.isBulkUpdateMode () with
-            | Mode.Update, _
-            | _, true ->
+            | Mode.Update, _ ->
                 failwith
                     "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a single snapshot; disable `GlobalBuilderConfig.bulkUpdate` to move back to assertion-checking mode."
+            | _, true ->
+                // In bulk update mode, register passing tests instead of failing immediately
+                // This allows tests with multiple snapshots to continue processing
+                GlobalBuilderConfig.registerPassingTest state.Caller
             | _ -> ()
         | Some (expected, actual) -> raiseError expected actual
 
@@ -646,10 +649,13 @@ type ExpectBuilder (mode : Mode) =
         match CompletedSnapshotGeneric.passesAssertion state with
         | None ->
             match mode, GlobalBuilderConfig.isBulkUpdateMode () with
-            | Mode.Update, _
-            | _, true ->
+            | Mode.Update, _ ->
                 failwith
                     "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a single snapshot; disable `GlobalBuilderConfig.bulkUpdate` to move back to assertion-checking mode."
+            | _, true ->
+                // In bulk update mode, register passing tests instead of failing immediately
+                // This allows tests with multiple snapshots to continue processing
+                GlobalBuilderConfig.registerPassingTest state.Caller
             | _ -> ()
         | Some (expected, actual) -> raiseError expected actual
 
