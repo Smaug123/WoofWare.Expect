@@ -36,7 +36,7 @@ module GlobalBuilderConfig =
             )
 
     /// <summary>
-    /// Clear the set of failing tests registered by any previous bulk-update runs.
+    /// Clear the set of failing and passing tests registered by any previous bulk-update runs.
     /// </summary>
     ///
     /// <remarks>
@@ -77,7 +77,7 @@ module GlobalBuilderConfig =
                     // Check if we only had passing tests in bulk update mode - this should be an error
                     if allTests.Length = 0 && passingTestsArray.Length > 0 then
                         failwith
-                            "Snapshot assertion passed, but we are in snapshot-updating mode. Use the `expect` builder instead of `expect'` to assert the contents of a single snapshot; don't call `GlobalBuilderConfig.enterBulkUpdateMode` to move back to assertion-checking mode."
+                            "All snapshot assertions passed, but bulk-update mode was enabled. Disable bulk-update mode by not calling `GlobalBuilderConfig.enterBulkUpdateMode` to return to normal assertion-checking mode."
 
                     SnapshotUpdate.updateAll allTests
                 finally
