@@ -333,5 +333,10 @@
     "pname": "Testably.Abstractions.FileSystem.Interface",
     "version": "9.0.0",
     "hash": "sha256-6JW+qDtqQT9StP4oTR7uO0NnmVc2xcjSZ6ds2H71wtg="
+  },
+  {
+    "pname": "WoofWare.NUnitTestRunner",
+    "version": "0.3.4",
+    "hash": "sha256-OaBYMEAXUDiz9ei2/Zg4Q1A8BNDK1oaMB44uVz4UG/0="
   }
 ]
