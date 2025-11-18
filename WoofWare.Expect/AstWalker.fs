@@ -129,6 +129,42 @@ module internal AstWalker =
         // Computation expression
         | SynExpr.ComputationExpr (_, innerExpr, _) -> findSnapshotListCalls targetLine methodName innerExpr
 
+        // Try/with exception handling
+        | SynExpr.TryWith (tryExpr = tryExpr ; withCases = withCases) ->
+            let tryResults = findSnapshotListCalls targetLine methodName tryExpr
+
+            let withResults =
+                withCases
+                |> List.collect (fun (SynMatchClause (resultExpr = expr)) ->
+                    findSnapshotListCalls targetLine methodName expr
+                )
+
+            tryResults @ withResults
+
+        // Try/finally
+        | SynExpr.TryFinally (tryExpr = tryExpr ; finallyExpr = finallyExpr) ->
+            let tryResults = findSnapshotListCalls targetLine methodName tryExpr
+            let finallyResults = findSnapshotListCalls targetLine methodName finallyExpr
+            tryResults @ finallyResults
+
+        // For loop
+        | SynExpr.For (doBody = doExpr) -> findSnapshotListCalls targetLine methodName doExpr
+
+        // For/in loop (ForEach)
+        | SynExpr.ForEach (bodyExpr = bodyExpr) -> findSnapshotListCalls targetLine methodName bodyExpr
+
+        // While loop
+        | SynExpr.While (doExpr = bodyExpr) -> findSnapshotListCalls targetLine methodName bodyExpr
+
+        // Yield or return in sequence expressions
+        | SynExpr.YieldOrReturn (expr = expr) -> findSnapshotListCalls targetLine methodName expr
+
+        // Do expression (e.g., loop bodies)
+        | SynExpr.Do (expr = expr) -> findSnapshotListCalls targetLine methodName expr
+
+        // Do! expression inside computation expressions
+        | SynExpr.DoBang (expr = expr) -> findSnapshotListCalls targetLine methodName expr
+
         // Default case - no results
         | _ -> []
 

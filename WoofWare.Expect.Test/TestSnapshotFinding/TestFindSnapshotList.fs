@@ -6,13 +6,7 @@ open FsUnitTyped
 
 [<TestFixture>]
 [<Parallelizable(ParallelScope.Children)>]
-module TestMissingAstCases =
-    /// Tests for the "Hidden Snapshot" bug: snapshots inside certain F# constructs
-    /// that are not traversed by AstWalker.fs.
-    ///
-    /// These tests currently FAIL (red) because the bug exists.
-    /// When the bug is fixed, these tests will PASS (green).
-
+module TestFindSnapshotList =
     type Dummy = class end
 
     [<Test>]
@@ -51,8 +45,8 @@ module TestMissingAstCases =
             Assembly.getEmbeddedResource typeof<Dummy>.Assembly "ForEachLoop.fs"
             |> _.Split('\n')
 
-        let location = AstWalker.findSnapshotList "" source 10 "snapshotList"
-        location.KeywordRange.StartLine |> shouldEqual 10
+        let location = AstWalker.findSnapshotList "" source 11 "snapshotList"
+        location.KeywordRange.StartLine |> shouldEqual 11
 
     [<Test>]
     let ``Snapshot inside while loop`` () =
@@ -60,8 +54,8 @@ module TestMissingAstCases =
             Assembly.getEmbeddedResource typeof<Dummy>.Assembly "WhileLoop.fs"
             |> _.Split('\n')
 
-        let location = AstWalker.findSnapshotList "" source 10 "snapshotList"
-        location.KeywordRange.StartLine |> shouldEqual 10
+        let location = AstWalker.findSnapshotList "" source 11 "snapshotList"
+        location.KeywordRange.StartLine |> shouldEqual 11
 
     [<Test>]
     let ``Snapshot with yield in sequence expression`` () =
@@ -109,8 +103,8 @@ module TestMissingAstCases =
             Assembly.getEmbeddedResource typeof<Dummy>.Assembly "ForEachLoop_Snapshot.fs"
             |> _.Split('\n')
 
-        let location = AstWalker.findSnapshotList "" source 10 "snapshot"
-        location.KeywordRange.StartLine |> shouldEqual 10
+        let location = AstWalker.findSnapshotList "" source 11 "snapshot"
+        location.KeywordRange.StartLine |> shouldEqual 11
 
     [<Test>]
     let ``Regular snapshot inside while loop`` () =
@@ -118,8 +112,8 @@ module TestMissingAstCases =
             Assembly.getEmbeddedResource typeof<Dummy>.Assembly "WhileLoop_Snapshot.fs"
             |> _.Split('\n')
 
-        let location = AstWalker.findSnapshotList "" source 10 "snapshot"
-        location.KeywordRange.StartLine |> shouldEqual 10
+        let location = AstWalker.findSnapshotList "" source 11 "snapshot"
+        location.KeywordRange.StartLine |> shouldEqual 11
 
     [<Test>]
     let ``Regular snapshot with yield in sequence expression`` () =

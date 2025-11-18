@@ -24,7 +24,7 @@
       <Compile Include="TestSnapshotFinding\TestEdgeCases.fs" />
       <Compile Include="TestSnapshotFinding\TestCommentsAndSpacing.fs" />
       <Compile Include="TestSnapshotFinding\TestRegexMetacharacters.fs" />
-      <Compile Include="TestSnapshotFinding\TestMissingAstCases.fs" />
+      <Compile Include="TestSnapshotFinding\TestFindSnapshotList.fs" />
 
       <EmbeddedResource Include="SyntaxCases\AtStringOneLine.fs" />
       <EmbeddedResource Include="SyntaxCases\SingleQuoteManyLine.fs" />
