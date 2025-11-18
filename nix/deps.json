@@ -6,8 +6,8 @@
   },
   {
     "pname": "fantomas",
-    "version": "7.0.2",
-    "hash": "sha256-BAaENIm/ksTiXrUImRgKoIXTGIlgsX7ch6ayoFjhJXA="
+    "version": "7.0.3",
+    "hash": "sha256-0XlfV7SxXPDnk/CjkUesJSaH0cxlNHJ+Jj86zNUhkNA="
   },
   {
     "pname": "Fantomas.FCS",
@@ -16,8 +16,8 @@
   },
   {
     "pname": "fsharp-analyzers",
-    "version": "0.31.0",
-    "hash": "sha256-PoAvaXbXsmvVw870UsnqdD20HoBHO7u4bzoaz5DXfzM="
+    "version": "0.34.1",
+    "hash": "sha256-Y6PzfVGob2EgX29ZhZIde5EhiZ28Y1+U2pJ6ybIsHV0="
   },
   {
     "pname": "FSharp.Core",
@@ -26,8 +26,8 @@
   },
   {
     "pname": "FSharp.Core",
-    "version": "9.0.202",
-    "hash": "sha256-64Gub0qemmCoMa1tDus6TeTuB1+5sHfE6KD2j4o84mA="
+    "version": "9.0.303",
+    "hash": "sha256-AxR6wqodeU23KOTgkUfIgbavgbcSuzD4UBP+tiFydgA="
   },
   {
     "pname": "FSharp.SystemTextJson",
@@ -336,7 +336,7 @@
   },
   {
     "pname": "WoofWare.NUnitTestRunner",
-    "version": "0.3.4",
-    "hash": "sha256-OaBYMEAXUDiz9ei2/Zg4Q1A8BNDK1oaMB44uVz4UG/0="
+    "version": "0.3.9",
+    "hash": "sha256-+QVx5NYdY1JZoMcWfJRwFgvEj2dBxWlJU0mu1Hmnlhs="
   }
 ]
