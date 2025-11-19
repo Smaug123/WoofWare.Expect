@@ -238,7 +238,8 @@ module internal AstWalker =
         let matches =
             results
             |> List.filter (fun loc ->
-                loc.KeywordRange.StartLine <= lineNumber
+                loc.Keyword = methodName
+                && loc.KeywordRange.StartLine <= lineNumber
                 && lineNumber <= loc.KeywordRange.EndLine
             )
 
