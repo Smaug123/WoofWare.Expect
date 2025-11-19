@@ -12,7 +12,10 @@
     ...
   }:
     flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
       pname = "WoofWare.Expect";
       dotnet-sdk = pkgs.dotnetCorePackages.sdk_9_0;
       dotnet-runtime = pkgs.dotnetCorePackages.runtime_9_0;
@@ -67,6 +70,8 @@
           pkgs.shellcheck
           pkgs.xmlstarlet
           pkgs.graph-easy
+          pkgs.claude-code
+          pkgs.codex
         ];
       };
     });

@@ -37,12 +37,6 @@ module internal AstWalker =
                         None
         | _ -> None
 
-    /// Extract the argument from a method application
-    let private getMethodArgument (expr : SynExpr) =
-        match expr with
-        | SynExpr.App (_, _, _, argExpr, _) -> Some argExpr
-        | _ -> None
-
     /// Walk expressions looking for our target
     let rec findSnapshotListCalls (targetLine : int) (methodName : string) (expr : SynExpr) : SnapshotLocation list =
         match expr with
@@ -52,7 +46,7 @@ module internal AstWalker =
             | Some (keyword, keywordRange) ->
                 if range.StartLine <= targetLine && targetLine <= range.EndLine then
                     match argExpr with
-                    | SynExpr.ArrayOrList (isList, _, argRange) when isList ->
+                    | SynExpr.ArrayOrList (isArray = false ; range = argRange) ->
                         // It's a list literal
                         [
                             {
@@ -61,7 +55,7 @@ module internal AstWalker =
                                 Keyword = keyword
                             }
                         ] // Text will be extracted separately
-                    | SynExpr.ArrayOrListComputed (isArray, _inner, argRange) when not isArray ->
+                    | SynExpr.ArrayOrListComputed (isArray = false ; range = argRange) ->
                         // It's a list comprehension
                         [
                             {
@@ -128,6 +122,42 @@ module internal AstWalker =
 
         // Computation expression
         | SynExpr.ComputationExpr (_, innerExpr, _) -> findSnapshotListCalls targetLine methodName innerExpr
+
+        // Try/with exception handling
+        | SynExpr.TryWith (tryExpr = tryExpr ; withCases = withCases) ->
+            let tryResults = findSnapshotListCalls targetLine methodName tryExpr
+
+            let withResults =
+                withCases
+                |> List.collect (fun (SynMatchClause (resultExpr = expr)) ->
+                    findSnapshotListCalls targetLine methodName expr
+                )
+
+            tryResults @ withResults
+
+        // Try/finally
+        | SynExpr.TryFinally (tryExpr = tryExpr ; finallyExpr = finallyExpr) ->
+            let tryResults = findSnapshotListCalls targetLine methodName tryExpr
+            let finallyResults = findSnapshotListCalls targetLine methodName finallyExpr
+            tryResults @ finallyResults
+
+        // For loop
+        | SynExpr.For (doBody = doExpr) -> findSnapshotListCalls targetLine methodName doExpr
+
+        // For/in loop (ForEach)
+        | SynExpr.ForEach (bodyExpr = bodyExpr) -> findSnapshotListCalls targetLine methodName bodyExpr
+
+        // While loop
+        | SynExpr.While (doExpr = bodyExpr) -> findSnapshotListCalls targetLine methodName bodyExpr
+
+        // Yield or return in sequence expressions
+        | SynExpr.YieldOrReturn (expr = expr) -> findSnapshotListCalls targetLine methodName expr
+
+        // Do expression (e.g., loop bodies)
+        | SynExpr.Do (expr = expr) -> findSnapshotListCalls targetLine methodName expr
+
+        // Do! expression inside computation expressions
+        | SynExpr.DoBang (expr = expr) -> findSnapshotListCalls targetLine methodName expr
 
         // Default case - no results
         | _ -> []
@@ -208,7 +238,8 @@ module internal AstWalker =
         let matches =
             results
             |> List.filter (fun loc ->
-                loc.KeywordRange.StartLine <= lineNumber
+                loc.Keyword = methodName
+                && loc.KeywordRange.StartLine <= lineNumber
                 && lineNumber <= loc.KeywordRange.EndLine
             )
 

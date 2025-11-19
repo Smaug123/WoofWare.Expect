@@ -24,6 +24,7 @@
       <Compile Include="TestSnapshotFinding\TestEdgeCases.fs" />
       <Compile Include="TestSnapshotFinding\TestCommentsAndSpacing.fs" />
       <Compile Include="TestSnapshotFinding\TestRegexMetacharacters.fs" />
+      <Compile Include="TestSnapshotFinding\TestFindSnapshotList.fs" />
 
       <EmbeddedResource Include="SyntaxCases\AtStringOneLine.fs" />
       <EmbeddedResource Include="SyntaxCases\SingleQuoteManyLine.fs" />
@@ -34,6 +35,18 @@
       <EmbeddedResource Include="SyntaxCases\MultilineComplex.fs" />
       <EmbeddedResource Include="SyntaxCases\EdgeCases.fs" />
       <EmbeddedResource Include="SyntaxCases\CommentsAndSpacing.fs" />
+      <EmbeddedResource Include="SyntaxCases\TryWithBlock.fs" />
+      <EmbeddedResource Include="SyntaxCases\TryFinallyBlock.fs" />
+      <EmbeddedResource Include="SyntaxCases\ForLoop.fs" />
+      <EmbeddedResource Include="SyntaxCases\ForEachLoop.fs" />
+      <EmbeddedResource Include="SyntaxCases\WhileLoop.fs" />
+      <EmbeddedResource Include="SyntaxCases\YieldExpression.fs" />
+      <EmbeddedResource Include="SyntaxCases\TryWithBlock_Snapshot.fs" />
+      <EmbeddedResource Include="SyntaxCases\TryFinallyBlock_Snapshot.fs" />
+      <EmbeddedResource Include="SyntaxCases\ForLoop_Snapshot.fs" />
+      <EmbeddedResource Include="SyntaxCases\ForEachLoop_Snapshot.fs" />
+      <EmbeddedResource Include="SyntaxCases\WhileLoop_Snapshot.fs" />
+      <EmbeddedResource Include="SyntaxCases\YieldExpression_Snapshot.fs" />
     </ItemGroup>
 
     <ItemGroup>
