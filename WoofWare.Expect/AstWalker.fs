@@ -37,12 +37,6 @@ module internal AstWalker =
                         None
         | _ -> None
 
-    /// Extract the argument from a method application
-    let private getMethodArgument (expr : SynExpr) =
-        match expr with
-        | SynExpr.App (_, _, _, argExpr, _) -> Some argExpr
-        | _ -> None
-
     /// Walk expressions looking for our target
     let rec findSnapshotListCalls (targetLine : int) (methodName : string) (expr : SynExpr) : SnapshotLocation list =
         match expr with
@@ -52,7 +46,7 @@ module internal AstWalker =
             | Some (keyword, keywordRange) ->
                 if range.StartLine <= targetLine && targetLine <= range.EndLine then
                     match argExpr with
-                    | SynExpr.ArrayOrList (isList, _, argRange) when isList ->
+                    | SynExpr.ArrayOrList (isArray = false ; range = argRange) ->
                         // It's a list literal
                         [
                             {
@@ -61,7 +55,7 @@ module internal AstWalker =
                                 Keyword = keyword
                             }
                         ] // Text will be extracted separately
-                    | SynExpr.ArrayOrListComputed (isArray, _inner, argRange) when not isArray ->
+                    | SynExpr.ArrayOrListComputed (isArray = false ; range = argRange) ->
                         // It's a list comprehension
                         [
                             {
