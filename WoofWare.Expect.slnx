@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="WoofWare.Expect.Test/WoofWare.Expect.Test.fsproj" />
+  <Project Path="WoofWare.Expect/WoofWare.Expect.fsproj" />
+</Solution>
