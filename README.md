@@ -1,7 +1,7 @@
 # WoofWare.Expect
 
 [![NuGet version](https://img.shields.io/nuget/v/WoofWare.Expect.svg?style=flat-square)](https://www.nuget.org/packages/WoofWare.Expect)
-[![GitHub Actions status](https://github.com/Smaug123/WoofWare.Expect/actions/workflows/dotnet.yaml/badge.svg)](https://github.com/Smaug123/WoofWare.Expect/actions?query=branch%3Amain)
+[![GitHub Actions status](https://github.com/Smaug123/WoofWare.Expect/actions/workflows/ci.yaml/badge.svg)](https://github.com/Smaug123/WoofWare.Expect/actions?query=branch%3Amain)
 [![License file](https://img.shields.io/github/license/Smaug123/WoofWare.Expect)](./LICENSE)
 
 <picture>
